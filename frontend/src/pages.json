@@ -3,14 +3,15 @@
 		{
 			"path": "pages/index/index",
 			"style": {
-				"navigationBarTitleText": "uni-app"
+				"navigationBarTitleText": "校淘空间",
+				"enablePullDownRefresh": true
 			}
 		}
 	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "uni-app",
-		"navigationBarBackgroundColor": "#F8F8F8",
-		"backgroundColor": "#F8F8F8"
+		"navigationBarTitleText": "校淘空间",
+		"navigationBarBackgroundColor": "#F2F5F3",
+		"backgroundColor": "#F2F5F3"
 	}
 }
