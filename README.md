@@ -6,8 +6,9 @@
 
 - M0：工程基线与协作规范
 - M1：前后端健康检查链路
+- M2：账号注册登录、JWT 鉴权、个人资料和密码修改
 
-注册、商品、交易、管理和 AI 功能将在后续里程碑实现。
+商品、交易、管理和 AI 功能将在后续里程碑实现。
 
 ## 环境要求
 
@@ -43,6 +44,22 @@ python run.py
 
 - `GET /health`：仅检查 Flask 服务
 - `GET /ready`：检查 Flask 和 MongoDB
+
+初始化 M2 演示账号：
+
+```bash
+cd server
+source .venv/bin/activate
+python scripts/seed_users.py
+```
+
+默认账号：
+
+| 账号 | 密码 | 角色 |
+| --- | --- | --- |
+| `user_a` | `Password123` | 普通用户 |
+| `user_b` | `Password123` | 普通用户 |
+| `admin` | `Admin12345` | 管理员 |
 
 ## 启动前端
 
@@ -83,4 +100,3 @@ npm run build:mp-weixin
 - [状态枚举](docs/enums.md)
 - [测试计划](docs/test-plan.md)
 - [完整开发计划](docs/development-plan.md)
-

@@ -1,8 +1,6 @@
-const AUTH_STORAGE_KEYS = ['auth_token', 'auth_user', 'auth_expires_at']
+import { clearAuthStorage as clearStoredAuth } from './auth'
 
-export const clearAuthStorage = () => {
-  AUTH_STORAGE_KEYS.forEach((key) => uni.removeStorageSync(key))
-}
+export const clearAuthStorage = clearStoredAuth
 
 export const createRequestError = ({
   statusCode = 0,
@@ -26,4 +24,3 @@ export const showRequestError = (error) => {
     duration: 2500,
   })
 }
-

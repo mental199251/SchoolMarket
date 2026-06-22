@@ -6,6 +6,36 @@
 				"navigationBarTitleText": "校淘空间",
 				"enablePullDownRefresh": true
 			}
+		},
+		{
+			"path": "pages/auth/login",
+			"style": {
+				"navigationBarTitleText": "登录"
+			}
+		},
+		{
+			"path": "pages/auth/register",
+			"style": {
+				"navigationBarTitleText": "注册"
+			}
+		},
+		{
+			"path": "pages/profile/profile",
+			"style": {
+				"navigationBarTitleText": "个人中心"
+			}
+		},
+		{
+			"path": "pages/profile/edit",
+			"style": {
+				"navigationBarTitleText": "编辑资料"
+			}
+		},
+		{
+			"path": "pages/profile/password",
+			"style": {
+				"navigationBarTitleText": "修改密码"
+			}
 		}
 	],
 	"globalStyle": {

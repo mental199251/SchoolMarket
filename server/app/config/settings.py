@@ -46,6 +46,10 @@ class BaseConfig:
         )
     )
 
+    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "dev-school-market-secret")
+    JWT_EXPIRES_SECONDS = _as_int(os.getenv("JWT_EXPIRES_SECONDS"), 7 * 24 * 60 * 60)
+    PASSWORD_MIN_LENGTH = _as_int(os.getenv("PASSWORD_MIN_LENGTH"), 8)
+
 
 class DevelopmentConfig(BaseConfig):
     DEBUG = _as_bool(os.getenv("FLASK_DEBUG"), True)

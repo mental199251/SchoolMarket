@@ -18,6 +18,13 @@
       <text class="api-value">{{ apiBaseUrl }}</text>
     </view>
 
+    <view class="auth-actions">
+      <button class="auth-primary" @click="goProfile">
+        {{ currentUser ? '进入个人中心' : '登录 / 注册' }}
+      </button>
+      <button class="auth-secondary" @click="goRegister">创建测试账号</button>
+    </view>
+
     <view class="section-heading">
       <text class="section-title">服务检查</text>
       <text class="checked-at">{{ checkedAt || '尚未检查' }}</text>
@@ -67,6 +74,7 @@
 <script>
 import { API_BASE_URL } from '../../api/config'
 import { getHealth, getReadiness } from '../../api'
+import { getStoredUser, hasValidAuth } from '../../utils/auth'
 
 const pendingStatus = (detail) => ({
   state: 'pending',
@@ -80,6 +88,7 @@ export default {
       apiBaseUrl: API_BASE_URL,
       checking: false,
       checkedAt: '',
+      currentUser: null,
       flaskStatus: pendingStatus('等待连接后端服务'),
       mongoStatus: pendingStatus('等待检查数据库连接'),
     }
@@ -111,10 +120,21 @@ export default {
   onLoad() {
     this.checkServices()
   },
+  onShow() {
+    this.currentUser = hasValidAuth() ? getStoredUser() : null
+  },
   onPullDownRefresh() {
     this.checkServices().finally(() => uni.stopPullDownRefresh())
   },
   methods: {
+    goProfile() {
+      uni.navigateTo({
+        url: this.currentUser ? '/pages/profile/profile' : '/pages/auth/login',
+      })
+    },
+    goRegister() {
+      uni.navigateTo({ url: '/pages/auth/register' })
+    },
     async checkServices() {
       this.checking = true
       this.flaskStatus = {
@@ -280,6 +300,29 @@ page {
   font-family: monospace;
   font-size: 24rpx;
   word-break: break-all;
+}
+
+.auth-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18rpx;
+  margin-top: 24rpx;
+}
+
+.auth-primary,
+.auth-secondary {
+  border-radius: 18rpx;
+  font-size: 28rpx;
+}
+
+.auth-primary {
+  background: #173f36;
+  color: #fff;
+}
+
+.auth-secondary {
+  background: #fff;
+  color: #24594e;
 }
 
 .section-heading {

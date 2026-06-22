@@ -1,4 +1,5 @@
 from flask import g
+from pymongo.errors import PyMongoError
 
 from app.utils.response import error_response
 
@@ -34,3 +35,15 @@ def register_error_handlers(app):
             status_code=500,
         )
 
+    @app.errorhandler(PyMongoError)
+    def handle_database_error(error):
+        app.logger.warning(
+            "Database operation failed, request_id=%s: %s",
+            getattr(g, "request_id", "unknown"),
+            error,
+        )
+        return error_response(
+            error_code="DATABASE_UNAVAILABLE",
+            message="数据库暂不可用",
+            status_code=503,
+        )

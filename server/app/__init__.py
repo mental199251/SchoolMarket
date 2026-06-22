@@ -5,7 +5,9 @@ from flask import Flask
 from app.config.settings import CONFIGS
 from app.extensions import init_extensions
 from app.middleware.request_context import register_request_context
+from app.routes.auth import auth_bp
 from app.routes.health import health_bp
+from app.routes.users import users_bp
 from app.utils.errors import register_error_handlers
 
 
@@ -25,5 +27,7 @@ def create_app(config_name=None, config_overrides=None):
     register_request_context(app)
     register_error_handlers(app)
     app.register_blueprint(health_bp)
+    app.register_blueprint(auth_bp, url_prefix="/api/v1/auth")
+    app.register_blueprint(users_bp, url_prefix="/api/v1/users")
 
     return app
