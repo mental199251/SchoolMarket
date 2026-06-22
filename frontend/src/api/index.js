@@ -1,4 +1,4 @@
-import { request } from './http'
+import { request, uploadFile } from './http'
 
 export const getHealth = (options = {}) => {
   return request({
@@ -60,5 +60,64 @@ export const updateMe = (data) => {
     path: '/api/v1/users/me',
     method: 'PUT',
     data,
+  })
+}
+
+export const getCategories = () => {
+  return request({
+    path: '/api/v1/categories',
+  })
+}
+
+export const getProducts = (data = {}) => {
+  return request({
+    path: '/api/v1/products',
+    data,
+  })
+}
+
+export const getProduct = (id, options = {}) => {
+  return request({
+    path: `/api/v1/products/${id}`,
+    ...options,
+  })
+}
+
+export const createProduct = (data) => {
+  return request({
+    path: '/api/v1/products',
+    method: 'POST',
+    data,
+  })
+}
+
+export const updateProduct = (id, data) => {
+  return request({
+    path: `/api/v1/products/${id}`,
+    method: 'PUT',
+    data,
+  })
+}
+
+export const deleteProduct = (id) => {
+  return request({
+    path: `/api/v1/products/${id}`,
+    method: 'DELETE',
+  })
+}
+
+export const updateProductStatus = (id, data) => {
+  return request({
+    path: `/api/v1/products/${id}/status`,
+    method: 'PUT',
+    data,
+  })
+}
+
+export const uploadProductImage = (filePath) => {
+  return uploadFile({
+    path: '/api/v1/uploads/images',
+    filePath,
+    name: 'images',
   })
 }

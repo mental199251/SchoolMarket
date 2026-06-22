@@ -28,6 +28,9 @@
 | `JWT_SECRET_KEY` | `dev-school-market-secret` | JWT 签名密钥，生产环境必须替换 |
 | `JWT_EXPIRES_SECONDS` | `604800` | 登录 token 有效期，默认 7 天 |
 | `PASSWORD_MIN_LENGTH` | `8` | 注册和改密的最短密码长度 |
+| `UPLOAD_FOLDER` | `server/uploads` | 图片上传存储目录 |
+| `MAX_CONTENT_LENGTH` | `10485760` | Flask 请求体上限 |
+| `UPLOAD_IMAGE_MAX_BYTES` | `5242880` | 单张图片大小上限 |
 
 ## 网络说明
 

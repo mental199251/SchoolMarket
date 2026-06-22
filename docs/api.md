@@ -195,3 +195,145 @@
 ```
 
 成功返回更新后的用户对象。
+
+## 商品与图片
+
+### 分类对象
+
+```json
+{
+  "id": "66f000000000000000000010",
+  "key": "books",
+  "name": "教材资料",
+  "sort_order": 10,
+  "is_active": true
+}
+```
+
+### 商品对象
+
+```json
+{
+  "id": "66f000000000000000000020",
+  "owner_id": "66f000000000000000000001",
+  "owner": {
+    "id": "66f000000000000000000001",
+    "username": "user_a",
+    "nickname": "普通用户 A",
+    "campus": "东校区"
+  },
+  "title": "高等数学教材",
+  "description": "同济版教材，附少量课堂笔记。",
+  "price_cents": 2800,
+  "category_key": "books",
+  "category_name": "教材资料",
+  "condition": "good",
+  "images": ["/uploads/images/example.png"],
+  "status": "available",
+  "created_at": "2026-06-22T10:00:00+00:00",
+  "updated_at": "2026-06-22T10:00:00+00:00"
+}
+```
+
+### GET /api/v1/categories
+
+返回启用的商品分类。
+
+成功：
+
+```json
+{
+  "items": []
+}
+```
+
+### POST /api/v1/uploads/images
+
+受保护接口。使用 `multipart/form-data` 上传图片，字段名为 `images` 或 `file`。一次最多 9 张，单张默认不超过 5MB，仅支持 JPG、PNG、GIF 和 WEBP。
+
+成功：HTTP 201。
+
+```json
+{
+  "urls": ["/uploads/images/1f2a3b.png"]
+}
+```
+
+### POST /api/v1/products
+
+受保护接口。发布商品，状态直接进入 `available`。
+
+请求：
+
+```json
+{
+  "title": "高等数学教材",
+  "description": "八成新，附课堂笔记",
+  "price_cents": 2800,
+  "category_key": "books",
+  "condition": "good",
+  "images": []
+}
+```
+
+成功：HTTP 201，返回商品对象。
+
+### GET /api/v1/products
+
+公开商品列表默认只返回 `available` 且未删除商品。
+
+查询参数：
+
+| 参数 | 说明 |
+| --- | --- |
+| `page` / `page_size` | 分页，`page_size` 最大 50 |
+| `keyword` | 标题或描述关键词 |
+| `category_key` | 分类 |
+| `condition` | 成色 |
+| `min_price_cents` / `max_price_cents` | 价格区间，单位分 |
+| `sort` | `newest`、`price_asc`、`price_desc` |
+| `mine=true` | 受保护查询，返回当前用户自己的商品 |
+| `status` | 与 `mine=true` 一起使用，筛选自己的商品状态 |
+
+成功返回分页对象。
+
+### GET /api/v1/products/{id}
+
+公开接口。`available` 商品所有人可见；非公开状态只有商品所有者携带 token 时可见，否则返回 `NOT_FOUND`。
+
+### PUT /api/v1/products/{id}
+
+受保护接口。只有商品所有者可编辑，已售商品不可编辑。
+
+请求字段与发布商品一致。成功返回更新后的商品对象。
+
+### DELETE /api/v1/products/{id}
+
+受保护接口。只有商品所有者可删除，已售商品不可删除。当前版本为软删除，公开列表和详情不再返回。
+
+成功：
+
+```json
+{
+  "deleted": true
+}
+```
+
+### PUT /api/v1/products/{id}/status
+
+受保护接口。只有商品所有者可操作。
+
+请求：
+
+```json
+{
+  "action": "off_shelf"
+}
+```
+
+`action` 支持：
+
+- `off_shelf`：可交易商品下架。
+- `restore`：已下架商品恢复为可交易。
+
+已售商品返回 `PRODUCT_UNAVAILABLE`。

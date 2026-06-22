@@ -51,6 +51,29 @@ def require_auth(view):
     return wrapped
 
 
+def get_optional_current_user():
+    header = request.headers.get("Authorization", "")
+    if not header.startswith("Bearer "):
+        return None, None
+
+    token = header.removeprefix("Bearer ").strip()
+    if not token:
+        return None, None
+
+    try:
+        payload = decode_access_token(token)
+    except AuthError as error:
+        return None, error
+
+    user = find_user_by_id(payload.get("sub"))
+    if not user:
+        return None, AuthError("AUTH_REQUIRED", "登录用户不存在，请重新登录", 401)
+    if user.get("status") != "active":
+        return None, AuthError("USER_DISABLED", "账号已被禁用", 403)
+
+    return user, None
+
+
 def require_admin(view):
     @require_auth
     @wraps(view)

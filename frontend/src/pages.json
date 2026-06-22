@@ -36,6 +36,32 @@
 			"style": {
 				"navigationBarTitleText": "修改密码"
 			}
+		},
+		{
+			"path": "pages/products/list",
+			"style": {
+				"navigationBarTitleText": "商品列表",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/products/detail",
+			"style": {
+				"navigationBarTitleText": "商品详情"
+			}
+		},
+		{
+			"path": "pages/products/form",
+			"style": {
+				"navigationBarTitleText": "发布商品"
+			}
+		},
+		{
+			"path": "pages/products/my",
+			"style": {
+				"navigationBarTitleText": "我的商品",
+				"enablePullDownRefresh": true
+			}
 		}
 	],
 	"globalStyle": {

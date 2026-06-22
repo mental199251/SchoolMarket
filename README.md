@@ -7,8 +7,9 @@
 - M0：工程基线与协作规范
 - M1：前后端健康检查链路
 - M2：账号注册登录、JWT 鉴权、个人资料和密码修改
+- M3：商品浏览、发布、编辑、下架、图片上传和我的商品
 
-商品、交易、管理和 AI 功能将在后续里程碑实现。
+交易、管理和 AI 功能将在后续里程碑实现。
 
 ## 环境要求
 
@@ -51,6 +52,14 @@ python run.py
 cd server
 source .venv/bin/activate
 python scripts/seed_users.py
+```
+
+初始化 M3 分类、演示账号和示例商品：
+
+```bash
+cd server
+source .venv/bin/activate
+python scripts/seed_data.py
 ```
 
 默认账号：

@@ -52,3 +52,26 @@ npm run build:mp-weixin
 6. 编辑昵称、联系方式和校区，确认个人中心同步展示。
 7. 修改密码，确认旧密码登录失败、新密码登录成功。
 8. 使用重复账号注册，确认页面展示账号已存在。
+
+## M3 自动化测试
+
+- `GET /api/v1/categories` 返回教材资料、电子产品、生活用品和运动器材分类。
+- `POST /api/v1/products` 登录后可发布商品。
+- `GET /api/v1/products` 支持关键词、分类、成色、价格和排序筛选，默认只返回 `available`。
+- `GET /api/v1/products/{id}` 可查看公开商品，非公开商品仅所有者可见。
+- `PUT /api/v1/products/{id}` 只能由所有者编辑，非所有者返回 `FORBIDDEN`。
+- `PUT /api/v1/products/{id}/status` 支持下架和恢复。
+- `DELETE /api/v1/products/{id}` 只能由所有者删除。
+- 已售商品不能编辑、下架或删除，返回 `PRODUCT_UNAVAILABLE`。
+- `POST /api/v1/uploads/images` 校验登录态、扩展名、MIME、文件内容、数量和大小。
+
+## M3 手工验收
+
+1. 启动 MongoDB 和 Flask。
+2. 执行 `python scripts/seed_data.py` 初始化分类、账号和示例商品。
+3. 打开首页，确认能看到最新商品。
+4. 进入商品列表，按关键词、分类、成色和排序筛选。
+5. 使用 `user_a` 登录，发布一个带图片的新商品。
+6. 使用 `user_b` 登录，确认能搜索并查看 `user_a` 发布的商品详情。
+7. 切回 `user_a`，进入我的商品，编辑、下架、恢复该商品。
+8. 确认 `user_b` 无法编辑 `user_a` 的商品。

@@ -20,6 +20,20 @@
 
 第一版设置 `PRODUCT_REVIEW_ENABLED=false`，正式提交后直接进入 `available`。
 
+成色：
+
+- `new`：全新
+- `like_new`：几乎全新
+- `good`：轻微使用
+- `fair`：明显使用
+
+第一版分类：
+
+- `books`：教材资料
+- `electronics`：电子产品
+- `daily`：生活用品
+- `sports`：运动器材
+
 ## 交易请求
 
 - `pending`：等待卖家处理
@@ -35,4 +49,3 @@ pending -> cancelled
 ```
 
 交易完成时必须同步将商品更新为 `sold`。
-

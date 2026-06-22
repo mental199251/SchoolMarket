@@ -49,6 +49,12 @@ class BaseConfig:
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "dev-school-market-secret")
     JWT_EXPIRES_SECONDS = _as_int(os.getenv("JWT_EXPIRES_SECONDS"), 7 * 24 * 60 * 60)
     PASSWORD_MIN_LENGTH = _as_int(os.getenv("PASSWORD_MIN_LENGTH"), 8)
+    UPLOAD_FOLDER = str((ROOT_DIR / os.getenv("UPLOAD_FOLDER", "server/uploads")).resolve())
+    MAX_CONTENT_LENGTH = _as_int(os.getenv("MAX_CONTENT_LENGTH"), 10 * 1024 * 1024)
+    UPLOAD_IMAGE_MAX_BYTES = _as_int(
+        os.getenv("UPLOAD_IMAGE_MAX_BYTES"),
+        5 * 1024 * 1024,
+    )
 
 
 class DevelopmentConfig(BaseConfig):

@@ -19,6 +19,8 @@ def app():
     )
     app.extensions["mongo"].db = mongomock.MongoClient()["school_market_test"]
     app.extensions.pop("users_indexes_ready", None)
+    app.extensions.pop("categories_indexes_ready", None)
+    app.extensions.pop("products_indexes_ready", None)
     return app
 
 

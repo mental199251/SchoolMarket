@@ -3,94 +3,72 @@
     <view class="hero">
       <text class="eyebrow">SCHOOL MARKET</text>
       <text class="title">校淘空间</text>
-      <text class="subtitle">M1 前后端联调状态</text>
+      <text class="subtitle">校园二手好物流转</text>
     </view>
 
-    <view class="summary-card">
-      <view class="summary-row">
-        <view>
-          <text class="summary-label">系统状态</text>
-          <text class="summary-value">{{ overallLabel }}</text>
-        </view>
-        <view :class="['summary-indicator', `indicator-${overallState}`]"></view>
+    <view class="status-card">
+      <view>
+        <text class="status-label">系统状态</text>
+        <text class="status-value">{{ overallLabel }}</text>
       </view>
-      <text class="api-label">API 地址</text>
-      <text class="api-value">{{ apiBaseUrl }}</text>
+      <view :class="['status-dot', `dot-${overallState}`]"></view>
     </view>
 
-    <view class="auth-actions">
-      <button class="auth-primary" @click="goProfile">
-        {{ currentUser ? '进入个人中心' : '登录 / 注册' }}
+    <view class="quick-grid">
+      <button class="quick-button primary" @click="goProducts">浏览商品</button>
+      <button class="quick-button" @click="goPublish">发布商品</button>
+      <button class="quick-button" @click="goMyProducts">我的商品</button>
+      <button class="quick-button" @click="goProfile">
+        {{ currentUser ? '个人中心' : '登录 / 注册' }}
       </button>
-      <button class="auth-secondary" @click="goRegister">创建测试账号</button>
     </view>
 
     <view class="section-heading">
-      <text class="section-title">服务检查</text>
-      <text class="checked-at">{{ checkedAt || '尚未检查' }}</text>
+      <text class="section-title">最新商品</text>
+      <text class="section-link" @click="goProducts">查看全部</text>
     </view>
 
-    <view class="status-card">
-      <view class="status-main">
-        <view :class="['status-icon', `status-${flaskStatus.state}`]">
-          <text>{{ flaskStatus.state === 'success' ? 'OK' : 'API' }}</text>
-        </view>
-        <view class="status-copy">
-          <text class="status-name">Flask API</text>
-          <text class="status-detail">{{ flaskStatus.detail }}</text>
-        </view>
+    <view v-if="loadingProducts" class="empty">正在加载商品</view>
+    <view v-else-if="products.length === 0" class="empty">暂无商品</view>
+
+    <view v-for="product in products" :key="product.id" class="product-card" @click="goDetail(product.id)">
+      <image
+        v-if="product.images && product.images.length"
+        class="product-image"
+        mode="aspectFill"
+        :src="assetUrl(product.images[0])"
+      />
+      <view v-else class="image-placeholder">
+        <text>校</text>
       </view>
-      <text :class="['status-tag', `tag-${flaskStatus.state}`]">
-        {{ flaskStatus.label }}
-      </text>
-    </view>
-
-    <view class="status-card">
-      <view class="status-main">
-        <view :class="['status-icon', `status-${mongoStatus.state}`]">
-          <text>{{ mongoStatus.state === 'success' ? 'DB' : 'M' }}</text>
-        </view>
-        <view class="status-copy">
-          <text class="status-name">MongoDB</text>
-          <text class="status-detail">{{ mongoStatus.detail }}</text>
-        </view>
+      <view class="product-main">
+        <text class="product-title">{{ product.title }}</text>
+        <text class="product-meta">{{ product.category_name }} · {{ conditionLabel(product.condition) }}</text>
       </view>
-      <text :class="['status-tag', `tag-${mongoStatus.state}`]">
-        {{ mongoStatus.label }}
-      </text>
-    </view>
-
-    <button class="check-button" :loading="checking" :disabled="checking" @click="checkServices">
-      {{ checking ? '正在检查...' : '重新检查' }}
-    </button>
-
-    <view class="tip-card">
-      <text class="tip-title">联调说明</text>
-      <text class="tip-text">/health 只检查 Flask；/ready 单独检查 MongoDB。数据库停止时，API 仍应保持健康。</text>
+      <text class="price">{{ formatPrice(product.price_cents) }}</text>
     </view>
   </view>
 </template>
 
 <script>
-import { API_BASE_URL } from '../../api/config'
-import { getHealth, getReadiness } from '../../api'
+import { getHealth, getProducts, getReadiness } from '../../api'
 import { getStoredUser, hasValidAuth } from '../../utils/auth'
+import { assetUrl, conditionLabel, formatPrice } from '../../utils/product'
 
-const pendingStatus = (detail) => ({
+const pendingStatus = {
   state: 'pending',
   label: '等待检查',
-  detail,
-})
+}
 
 export default {
   data() {
     return {
-      apiBaseUrl: API_BASE_URL,
       checking: false,
-      checkedAt: '',
+      loadingProducts: false,
       currentUser: null,
-      flaskStatus: pendingStatus('等待连接后端服务'),
-      mongoStatus: pendingStatus('等待检查数据库连接'),
+      flaskStatus: { ...pendingStatus },
+      mongoStatus: { ...pendingStatus },
+      products: [],
     }
   },
   computed: {
@@ -119,74 +97,67 @@ export default {
   },
   onLoad() {
     this.checkServices()
+    this.loadProducts()
   },
   onShow() {
     this.currentUser = hasValidAuth() ? getStoredUser() : null
   },
   onPullDownRefresh() {
-    this.checkServices().finally(() => uni.stopPullDownRefresh())
+    Promise.all([this.checkServices(), this.loadProducts()]).finally(() => {
+      uni.stopPullDownRefresh()
+    })
   },
   methods: {
+    assetUrl,
+    conditionLabel,
+    formatPrice,
+    async checkServices() {
+      this.checking = true
+      const health = getHealth()
+        .then(() => {
+          this.flaskStatus = { state: 'success', label: '正常' }
+        })
+        .catch(() => {
+          this.flaskStatus = { state: 'error', label: '不可用' }
+        })
+      const ready = getReadiness()
+        .then(() => {
+          this.mongoStatus = { state: 'success', label: '已就绪' }
+        })
+        .catch(() => {
+          this.mongoStatus = { state: 'error', label: '未就绪' }
+        })
+
+      await Promise.all([health, ready])
+      this.checking = false
+    },
+    async loadProducts() {
+      this.loadingProducts = true
+      try {
+        const data = await getProducts({ page: 1, page_size: 4, sort: 'newest' })
+        this.products = data.items
+      } catch (_error) {
+        this.products = []
+      } finally {
+        this.loadingProducts = false
+      }
+    },
+    goProducts() {
+      uni.navigateTo({ url: '/pages/products/list' })
+    },
+    goPublish() {
+      uni.navigateTo({ url: '/pages/products/form' })
+    },
+    goMyProducts() {
+      uni.navigateTo({ url: '/pages/products/my' })
+    },
     goProfile() {
       uni.navigateTo({
         url: this.currentUser ? '/pages/profile/profile' : '/pages/auth/login',
       })
     },
-    goRegister() {
-      uni.navigateTo({ url: '/pages/auth/register' })
-    },
-    async checkServices() {
-      this.checking = true
-      this.flaskStatus = {
-        state: 'checking',
-        label: '检查中',
-        detail: '正在请求 /health',
-      }
-      this.mongoStatus = {
-        state: 'checking',
-        label: '检查中',
-        detail: '正在请求 /ready',
-      }
-
-      const healthCheck = getHealth()
-        .then((data) => {
-          this.flaskStatus = {
-            state: 'success',
-            label: '正常',
-            detail: `${data.service} · ${data.status}`,
-          }
-        })
-        .catch((error) => {
-          this.flaskStatus = {
-            state: 'error',
-            label: '不可用',
-            detail: error.message,
-          }
-        })
-
-      const readinessCheck = getReadiness()
-        .then((data) => {
-          this.mongoStatus = {
-            state: 'success',
-            label: '已就绪',
-            detail: `MongoDB · ${data.dependencies.mongodb}`,
-          }
-        })
-        .catch((error) => {
-          this.mongoStatus = {
-            state: 'error',
-            label: '未就绪',
-            detail: error.message,
-          }
-        })
-
-      await Promise.all([healthCheck, readinessCheck])
-      this.checkedAt = this.formatTime(new Date())
-      this.checking = false
-    },
-    formatTime(date) {
-      const pad = (value) => String(value).padStart(2, '0')
-      return `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
+    goDetail(id) {
+      uni.navigateTo({ url: `/pages/products/detail?id=${id}` })
     },
   },
 }
@@ -200,14 +171,14 @@ page {
 .page {
   min-height: 100vh;
   box-sizing: border-box;
-  padding: 48rpx 32rpx 64rpx;
+  padding: 48rpx 28rpx 64rpx;
   color: #17221e;
 }
 
 .hero {
   display: flex;
   flex-direction: column;
-  margin-bottom: 36rpx;
+  margin-bottom: 28rpx;
 }
 
 .eyebrow {
@@ -215,7 +186,6 @@ page {
   color: #367c6c;
   font-size: 22rpx;
   font-weight: 700;
-  letter-spacing: 4rpx;
 }
 
 .title {
@@ -230,225 +200,148 @@ page {
   font-size: 28rpx;
 }
 
-.summary-card {
-  padding: 36rpx;
-  border-radius: 28rpx;
-  background: #173f36;
-  box-shadow: 0 16rpx 40rpx rgba(23, 63, 54, 0.16);
-  color: #fff;
-}
-
-.summary-row,
-.section-heading,
 .status-card,
-.status-main {
+.section-heading,
+.product-card {
   display: flex;
   align-items: center;
 }
 
-.summary-row,
-.section-heading,
-.status-card {
-  justify-content: space-between;
+.status-card,
+.product-card {
+  border: 1rpx solid #e3e9e6;
+  border-radius: 22rpx;
+  background: #fff;
 }
 
-.summary-label,
-.api-label {
+.status-card {
+  justify-content: space-between;
+  padding: 26rpx;
+}
+
+.status-label {
   display: block;
-  color: rgba(255, 255, 255, 0.66);
+  color: #75817c;
   font-size: 24rpx;
 }
 
-.summary-value {
+.status-value {
   display: block;
-  margin-top: 8rpx;
-  font-size: 40rpx;
+  margin-top: 6rpx;
+  font-size: 34rpx;
   font-weight: 700;
 }
 
-.summary-indicator {
-  width: 26rpx;
-  height: 26rpx;
-  border: 8rpx solid rgba(255, 255, 255, 0.16);
+.status-dot {
+  width: 24rpx;
+  height: 24rpx;
   border-radius: 50%;
   background: #a9b3af;
 }
 
-.indicator-success {
+.dot-success {
   background: #63d6a5;
 }
 
-.indicator-warning {
+.dot-warning {
   background: #f4bd63;
 }
 
-.indicator-error {
+.dot-error {
   background: #ef786f;
 }
 
-.indicator-checking {
+.dot-checking {
   background: #77b9ff;
 }
 
-.api-label {
-  margin-top: 32rpx;
-}
-
-.api-value {
-  display: block;
-  margin-top: 8rpx;
-  font-family: monospace;
-  font-size: 24rpx;
-  word-break: break-all;
-}
-
-.auth-actions {
+.quick-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 18rpx;
-  margin-top: 24rpx;
+  gap: 16rpx;
+  margin-top: 22rpx;
 }
 
-.auth-primary,
-.auth-secondary {
+.quick-button {
   border-radius: 18rpx;
+  background: #fff;
+  color: #24594e;
   font-size: 28rpx;
 }
 
-.auth-primary {
+.quick-button.primary {
   background: #173f36;
   color: #fff;
 }
 
-.auth-secondary {
-  background: #fff;
-  color: #24594e;
-}
-
 .section-heading {
-  margin: 48rpx 4rpx 20rpx;
+  justify-content: space-between;
+  margin: 42rpx 4rpx 18rpx;
 }
 
 .section-title {
-  font-size: 30rpx;
+  font-size: 31rpx;
   font-weight: 700;
 }
 
-.checked-at {
-  color: #87918d;
-  font-size: 24rpx;
+.section-link {
+  color: #367c6c;
+  font-size: 25rpx;
 }
 
-.status-card {
-  margin-bottom: 20rpx;
-  padding: 28rpx;
-  border: 1rpx solid #e3e9e6;
-  border-radius: 24rpx;
-  background: #fff;
+.empty {
+  padding: 80rpx 0;
+  color: #75817c;
+  font-size: 28rpx;
+  text-align: center;
 }
 
-.status-icon {
+.product-card {
+  margin-bottom: 18rpx;
+  padding: 20rpx;
+}
+
+.product-image,
+.image-placeholder {
+  width: 128rpx;
+  height: 128rpx;
+  margin-right: 18rpx;
+  border-radius: 18rpx;
+}
+
+.image-placeholder {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 76rpx;
-  height: 76rpx;
-  margin-right: 24rpx;
-  border-radius: 22rpx;
-  background: #edf1ef;
-  color: #5f6b66;
-  font-size: 22rpx;
+  background: #ddf5eb;
+  color: #25715f;
+  font-size: 42rpx;
   font-weight: 700;
 }
 
-.status-success {
-  background: #ddf5eb;
-  color: #25715f;
-}
-
-.status-error {
-  background: #fde6e3;
-  color: #a74740;
-}
-
-.status-checking {
-  background: #e4f0fd;
-  color: #356c9e;
-}
-
-.status-copy {
+.product-main {
   display: flex;
+  flex: 1;
+  min-width: 0;
   flex-direction: column;
-  max-width: 390rpx;
 }
 
-.status-name {
+.product-title {
   font-size: 30rpx;
-  font-weight: 600;
+  font-weight: 700;
+  line-height: 1.35;
 }
 
-.status-detail {
+.product-meta {
   margin-top: 8rpx;
   color: #75817c;
-  font-size: 23rpx;
-  line-height: 1.45;
-}
-
-.status-tag {
-  padding: 10rpx 16rpx;
-  border-radius: 999rpx;
-  background: #eef1f0;
-  color: #69746f;
-  font-size: 22rpx;
-}
-
-.tag-success {
-  background: #ddf5eb;
-  color: #25715f;
-}
-
-.tag-error {
-  background: #fde6e3;
-  color: #a74740;
-}
-
-.tag-checking {
-  background: #e4f0fd;
-  color: #356c9e;
-}
-
-.check-button {
-  margin-top: 32rpx;
-  border: 0;
-  border-radius: 20rpx;
-  background: #2f7d6c;
-  color: #fff;
-  font-size: 30rpx;
-  font-weight: 600;
-}
-
-.check-button::after {
-  border: 0;
-}
-
-.tip-card {
-  margin-top: 28rpx;
-  padding: 28rpx;
-  border-radius: 22rpx;
-  background: #e8eeeb;
-}
-
-.tip-title {
-  display: block;
-  margin-bottom: 10rpx;
-  color: #315a50;
-  font-size: 25rpx;
-  font-weight: 700;
-}
-
-.tip-text {
-  color: #65716c;
   font-size: 24rpx;
-  line-height: 1.65;
+}
+
+.price {
+  margin-left: 12rpx;
+  color: #b6533d;
+  font-size: 30rpx;
+  font-weight: 700;
 }
 </style>

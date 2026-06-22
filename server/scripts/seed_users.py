@@ -7,6 +7,7 @@ if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
 from app import create_app
+from app.repositories.categories import upsert_default_categories
 from app.repositories.users import serialize_user, upsert_seed_user
 from app.services.auth import hash_password
 
@@ -36,6 +37,7 @@ SEED_USERS = [
 def main():
     app = create_app()
     with app.app_context():
+        upsert_default_categories()
         for seed in SEED_USERS:
             user = upsert_seed_user(
                 username=seed["username"],
