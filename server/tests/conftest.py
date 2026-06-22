@@ -22,6 +22,9 @@ def app():
     app.extensions.pop("categories_indexes_ready", None)
     app.extensions.pop("products_indexes_ready", None)
     app.extensions.pop("trades_indexes_ready", None)
+    app.extensions.pop("messages_indexes_ready", None)
+    app.extensions.pop("operation_logs_indexes_ready", None)
+    app.extensions.pop("announcements_indexes_ready", None)
     return app
 
 

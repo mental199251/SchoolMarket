@@ -422,3 +422,189 @@ pending -> cancelled
 受保护接口。买家或卖家可以将 `confirmed` 请求标记为线下完成。完成时商品同步更新为 `sold`。
 
 状态已变化或商品已不可完成时返回 HTTP 409，并在 `data.trade` 中返回最新交易状态。
+
+## 消息与公告
+
+交易创建、确认、取消和完成成功后会自动生成站内消息。消息对象：
+
+```json
+{
+  "id": "66f000000000000000000040",
+  "user_id": "66f000000000000000000001",
+  "type": "trade",
+  "title": "收到新的购买请求",
+  "content": "普通用户 B 想购买「高等数学教材」。",
+  "related_type": "trade",
+  "related_id": "66f000000000000000000030",
+  "is_read": false,
+  "created_at": "2026-06-22T10:00:00+00:00",
+  "read_at": null
+}
+```
+
+### GET /api/v1/messages
+
+受保护接口。返回当前用户消息分页，并额外返回 `unread_count`。
+
+查询参数：
+
+| 参数 | 说明 |
+| --- | --- |
+| `page` / `page_size` | 分页，`page_size` 最大 50 |
+| `read` | `true` 或 `false`，筛选已读/未读 |
+| `type` | 消息类型，当前为 `trade` |
+
+### PUT /api/v1/messages/{id}/read
+
+受保护接口。将当前用户的一条消息标记为已读，返回更新后的消息对象。
+
+### PUT /api/v1/messages/read-all
+
+受保护接口。将当前用户全部未读消息标记为已读。
+
+成功：
+
+```json
+{
+  "updated": 2
+}
+```
+
+### GET /api/v1/announcements
+
+公开接口。返回 `published` 公告分页。
+
+公告对象：
+
+```json
+{
+  "id": "66f000000000000000000050",
+  "title": "线下交易提醒",
+  "content": "请在校园公共区域完成线下交易。",
+  "status": "published",
+  "created_by": "66f000000000000000000003",
+  "created_at": "2026-06-22T10:00:00+00:00",
+  "updated_at": "2026-06-22T10:00:00+00:00"
+}
+```
+
+## 管理员治理
+
+以下接口均要求管理员 token。普通用户调用返回 `FORBIDDEN`；禁用用户即使持有管理员旧 token 也返回 `USER_DISABLED`。
+
+### GET /api/v1/admin/users
+
+查询用户分页。
+
+查询参数：
+
+| 参数 | 说明 |
+| --- | --- |
+| `page` / `page_size` | 分页，`page_size` 最大 50 |
+| `keyword` | 账号或昵称关键词 |
+| `role` | `user`、`admin` |
+| `status` | `active`、`disabled` |
+
+### PUT /api/v1/admin/users/{id}/status
+
+禁用或恢复用户，并写入操作日志。
+
+请求：
+
+```json
+{
+  "status": "disabled"
+}
+```
+
+### GET /api/v1/admin/products
+
+查询商品治理列表。
+
+查询参数：
+
+| 参数 | 说明 |
+| --- | --- |
+| `page` / `page_size` | 分页，`page_size` 最大 50 |
+| `keyword` | 标题或描述关键词 |
+| `status` | `available`、`off_shelf`、`sold` |
+| `category_key` | 分类 |
+| `include_deleted=true` | 是否包含软删除商品 |
+
+### PUT /api/v1/admin/products/{id}/status
+
+管理员直接更新商品状态，并写入操作日志。
+
+请求：
+
+```json
+{
+  "status": "off_shelf"
+}
+```
+
+### DELETE /api/v1/admin/products/{id}
+
+管理员软删除商品，并写入操作日志。成功返回 `{ "deleted": true }`。
+
+### GET /api/v1/admin/announcements
+
+查询公告分页，默认包含隐藏公告，可用 `status=published|hidden` 筛选。
+
+### POST /api/v1/admin/announcements
+
+创建公告，并写入操作日志。成功 HTTP 201。
+
+请求：
+
+```json
+{
+  "title": "线下交易提醒",
+  "content": "请在校园公共区域完成线下交易。",
+  "status": "published"
+}
+```
+
+### PUT /api/v1/admin/announcements/{id}
+
+更新公告标题、内容和状态，并写入操作日志。请求字段同创建公告。
+
+### DELETE /api/v1/admin/announcements/{id}
+
+隐藏公告，并写入操作日志。成功返回 `{ "deleted": true }`。
+
+### GET /api/v1/admin/logs
+
+查询管理员操作日志。
+
+查询参数：
+
+| 参数 | 说明 |
+| --- | --- |
+| `page` / `page_size` | 分页，`page_size` 最大 50 |
+| `action` | 例如 `user_status_update`、`product_status_update` |
+| `target_type` | `user`、`product`、`announcement` |
+| `operator_id` | 管理员用户 id |
+
+日志对象：
+
+```json
+{
+  "id": "66f000000000000000000060",
+  "operator_id": "66f000000000000000000003",
+  "operator": {
+    "id": "66f000000000000000000003",
+    "username": "admin",
+    "nickname": "管理员",
+    "role": "admin"
+  },
+  "action": "product_status_update",
+  "target_type": "product",
+  "target_id": "66f000000000000000000020",
+  "details": {
+    "status": "off_shelf",
+    "title": "高等数学教材"
+  },
+  "created_at": "2026-06-22T10:00:00+00:00"
+}
+```

@@ -1,7 +1,7 @@
 from bson import ObjectId
 from bson.errors import InvalidId
 from flask import current_app
-from pymongo import ASCENDING, ReturnDocument
+from pymongo import ASCENDING, DESCENDING, ReturnDocument
 from pymongo.errors import DuplicateKeyError
 
 
@@ -169,6 +169,51 @@ def set_user_status_for_tests(user_id, status):
     ensure_user_indexes()
     return _collection().find_one_and_update(
         {"_id": ObjectId(user_id)},
+        {"$set": {"status": status, "updated_at": utc_now_iso()}},
+        return_document=ReturnDocument.AFTER,
+    )
+
+
+def list_users(filters):
+    ensure_user_indexes()
+    query = {}
+    if filters.get("keyword"):
+        keyword = filters["keyword"]
+        query["$or"] = [
+            {"username": {"$regex": keyword, "$options": "i"}},
+            {"nickname": {"$regex": keyword, "$options": "i"}},
+        ]
+    if filters.get("role"):
+        query["role"] = filters["role"]
+    if filters.get("status"):
+        query["status"] = filters["status"]
+
+    page = filters["page"]
+    page_size = filters["page_size"]
+    total = _collection().count_documents(query)
+    cursor = (
+        _collection()
+        .find(query)
+        .sort([("created_at", DESCENDING)])
+        .skip((page - 1) * page_size)
+        .limit(page_size)
+    )
+    return {
+        "items": [serialize_user(user) for user in cursor],
+        "total": total,
+        "page": page,
+        "page_size": page_size,
+    }
+
+
+def update_user_status(user_id, status):
+    ensure_user_indexes()
+    try:
+        object_id = ObjectId(user_id)
+    except (InvalidId, TypeError):
+        return None
+    return _collection().find_one_and_update(
+        {"_id": object_id},
         {"$set": {"status": status, "updated_at": utc_now_iso()}},
         return_document=ReturnDocument.AFTER,
     )

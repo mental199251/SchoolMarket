@@ -10,6 +10,7 @@ from app.services.trades import (
     create_trade_for_product,
     parse_trade_filters,
 )
+from app.services import messages as message_service
 from app.utils.response import error_response, success_response
 
 
@@ -44,8 +45,10 @@ def create_trade():
     except TradeError as error:
         return _trade_error(error)
 
+    public_trade = trade_repository.serialize_trade(trade)
+    message_service.create_trade_created_messages(public_trade)
     return success_response(
-        data=trade_repository.serialize_trade(trade),
+        data=public_trade,
         message="购买请求已发送",
         status_code=201,
     )
@@ -83,8 +86,10 @@ def confirm(trade_id):
         updated = confirm_trade(trade, g.current_user)
     except TradeError as error:
         return _trade_error(error)
+    public_trade = trade_repository.serialize_trade(updated)
+    message_service.create_trade_confirmed_message(public_trade)
     return success_response(
-        data=trade_repository.serialize_trade(updated),
+        data=public_trade,
         message="交易已确认",
     )
 
@@ -99,8 +104,13 @@ def cancel(trade_id):
         updated = cancel_trade(trade, g.current_user)
     except TradeError as error:
         return _trade_error(error)
+    public_trade = trade_repository.serialize_trade(updated)
+    message_service.create_trade_cancelled_message(
+        public_trade,
+        str(g.current_user["_id"]),
+    )
     return success_response(
-        data=trade_repository.serialize_trade(updated),
+        data=public_trade,
         message="交易已取消",
     )
 
@@ -115,7 +125,9 @@ def complete(trade_id):
         updated = complete_trade(trade, g.current_user)
     except TradeError as error:
         return _trade_error(error)
+    public_trade = trade_repository.serialize_trade(updated)
+    message_service.create_trade_completed_messages(public_trade)
     return success_response(
-        data=trade_repository.serialize_trade(updated),
+        data=public_trade,
         message="交易已完成",
     )

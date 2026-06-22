@@ -161,6 +161,9 @@ def find_product_by_id(product_id):
 
 def update_product(product_id, data):
     ensure_product_indexes()
+    object_id = _to_object_id(product_id)
+    if not object_id:
+        return None
     now = utc_now_iso()
     update_fields = {
         "title": data["title"],
@@ -173,7 +176,7 @@ def update_product(product_id, data):
         "updated_at": now,
     }
     return _collection().find_one_and_update(
-        {"_id": ObjectId(product_id), "deleted_at": None},
+        {"_id": object_id, "deleted_at": None},
         {"$set": update_fields},
         return_document=ReturnDocument.AFTER,
     )
@@ -181,9 +184,12 @@ def update_product(product_id, data):
 
 def update_product_status(product_id, status):
     ensure_product_indexes()
+    object_id = _to_object_id(product_id)
+    if not object_id:
+        return None
     now = utc_now_iso()
     return _collection().find_one_and_update(
-        {"_id": ObjectId(product_id), "deleted_at": None},
+        {"_id": object_id, "deleted_at": None},
         {"$set": {"status": status, "updated_at": now}},
         return_document=ReturnDocument.AFTER,
     )
@@ -191,10 +197,13 @@ def update_product_status(product_id, status):
 
 def mark_product_sold(product_id):
     ensure_product_indexes()
+    object_id = _to_object_id(product_id)
+    if not object_id:
+        return None
     now = utc_now_iso()
     return _collection().find_one_and_update(
         {
-            "_id": ObjectId(product_id),
+            "_id": object_id,
             "deleted_at": None,
             "status": {"$ne": "sold"},
         },
@@ -205,10 +214,59 @@ def mark_product_sold(product_id):
 
 def delete_product(product_id):
     ensure_product_indexes()
+    object_id = _to_object_id(product_id)
+    if not object_id:
+        return None
     now = utc_now_iso()
     return _collection().find_one_and_update(
-        {"_id": ObjectId(product_id), "deleted_at": None},
+        {"_id": object_id, "deleted_at": None},
         {"$set": {"deleted_at": now, "status": "off_shelf", "updated_at": now}},
+        return_document=ReturnDocument.AFTER,
+    )
+
+
+def list_admin_products(filters):
+    ensure_product_indexes()
+    query = {}
+    if not filters.get("include_deleted"):
+        query["deleted_at"] = None
+    if filters.get("keyword"):
+        keyword = re.escape(filters["keyword"])
+        query["$or"] = [
+            {"title": {"$regex": keyword, "$options": "i"}},
+            {"description": {"$regex": keyword, "$options": "i"}},
+        ]
+    if filters.get("status"):
+        query["status"] = filters["status"]
+    if filters.get("category_key"):
+        query["category_key"] = filters["category_key"]
+
+    page = filters["page"]
+    page_size = filters["page_size"]
+    total = _collection().count_documents(query)
+    cursor = (
+        _collection()
+        .find(query)
+        .sort([("created_at", DESCENDING)])
+        .skip((page - 1) * page_size)
+        .limit(page_size)
+    )
+    return {
+        "items": [serialize_product(product) for product in cursor],
+        "total": total,
+        "page": page,
+        "page_size": page_size,
+    }
+
+
+def admin_update_product_status(product_id, status):
+    ensure_product_indexes()
+    object_id = _to_object_id(product_id)
+    if not object_id:
+        return None
+    return _collection().find_one_and_update(
+        {"_id": object_id, "deleted_at": None},
+        {"$set": {"status": status, "updated_at": utc_now_iso()}},
         return_document=ReturnDocument.AFTER,
     )
 

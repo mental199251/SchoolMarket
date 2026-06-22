@@ -76,6 +76,41 @@
 				"navigationBarTitleText": "收到的请求",
 				"enablePullDownRefresh": true
 			}
+		},
+		{
+			"path": "pages/messages/messages",
+			"style": {
+				"navigationBarTitleText": "消息中心",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/admin/users",
+			"style": {
+				"navigationBarTitleText": "用户管理",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/admin/products",
+			"style": {
+				"navigationBarTitleText": "商品治理",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/admin/announcements",
+			"style": {
+				"navigationBarTitleText": "公告维护",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/admin/logs",
+			"style": {
+				"navigationBarTitleText": "操作日志",
+				"enablePullDownRefresh": true
+			}
 		}
 	],
 	"globalStyle": {

@@ -164,3 +164,105 @@ export const completeTrade = (id) => {
     method: 'PUT',
   })
 }
+
+export const getMessages = (data = {}) => {
+  return request({
+    path: '/api/v1/messages',
+    data,
+  })
+}
+
+export const markMessageRead = (id) => {
+  return request({
+    path: `/api/v1/messages/${id}/read`,
+    method: 'PUT',
+  })
+}
+
+export const markAllMessagesRead = () => {
+  return request({
+    path: '/api/v1/messages/read-all',
+    method: 'PUT',
+  })
+}
+
+export const getAnnouncements = (data = {}) => {
+  return request({
+    path: '/api/v1/announcements',
+    data,
+  })
+}
+
+export const getAdminUsers = (data = {}) => {
+  return request({
+    path: '/api/v1/admin/users',
+    data,
+  })
+}
+
+export const updateAdminUserStatus = (id, data) => {
+  return request({
+    path: `/api/v1/admin/users/${id}/status`,
+    method: 'PUT',
+    data,
+  })
+}
+
+export const getAdminProducts = (data = {}) => {
+  return request({
+    path: '/api/v1/admin/products',
+    data,
+  })
+}
+
+export const updateAdminProductStatus = (id, data) => {
+  return request({
+    path: `/api/v1/admin/products/${id}/status`,
+    method: 'PUT',
+    data,
+  })
+}
+
+export const deleteAdminProduct = (id) => {
+  return request({
+    path: `/api/v1/admin/products/${id}`,
+    method: 'DELETE',
+  })
+}
+
+export const getAdminAnnouncements = (data = {}) => {
+  return request({
+    path: '/api/v1/admin/announcements',
+    data,
+  })
+}
+
+export const createAdminAnnouncement = (data) => {
+  return request({
+    path: '/api/v1/admin/announcements',
+    method: 'POST',
+    data,
+  })
+}
+
+export const updateAdminAnnouncement = (id, data) => {
+  return request({
+    path: `/api/v1/admin/announcements/${id}`,
+    method: 'PUT',
+    data,
+  })
+}
+
+export const deleteAdminAnnouncement = (id) => {
+  return request({
+    path: `/api/v1/admin/announcements/${id}`,
+    method: 'DELETE',
+  })
+}
+
+export const getAdminLogs = (data = {}) => {
+  return request({
+    path: '/api/v1/admin/logs',
+    data,
+  })
+}

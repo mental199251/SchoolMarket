@@ -18,11 +18,34 @@
       <button class="quick-button primary" @click="goProducts">浏览商品</button>
       <button class="quick-button" @click="goPublish">发布商品</button>
       <button class="quick-button" @click="goMyProducts">我的商品</button>
+      <button class="quick-button" @click="goMessages">消息中心</button>
       <button class="quick-button" @click="goBuyTrades">我的购买</button>
       <button class="quick-button" @click="goSellTrades">收到请求</button>
       <button class="quick-button" @click="goProfile">
         {{ currentUser ? '个人中心' : '登录 / 注册' }}
       </button>
+    </view>
+
+    <view v-if="isAdmin" class="admin-panel">
+      <text class="panel-title">后台管理</text>
+      <view class="admin-grid">
+        <button class="admin-button" @click="goAdminUsers">用户</button>
+        <button class="admin-button" @click="goAdminProducts">商品</button>
+        <button class="admin-button" @click="goAdminAnnouncements">公告</button>
+        <button class="admin-button" @click="goAdminLogs">日志</button>
+      </view>
+    </view>
+
+    <view class="section-heading">
+      <text class="section-title">公告</text>
+      <text class="section-link" @click="loadAnnouncements">刷新</text>
+    </view>
+
+    <view v-if="loadingAnnouncements" class="empty compact">正在加载公告</view>
+    <view v-else-if="announcements.length === 0" class="empty compact">暂无公告</view>
+    <view v-for="item in announcements" :key="item.id" class="announcement-card">
+      <text class="announcement-title">{{ item.title }}</text>
+      <text class="announcement-content">{{ item.content || '暂无内容' }}</text>
     </view>
 
     <view class="section-heading">
@@ -53,7 +76,7 @@
 </template>
 
 <script>
-import { getHealth, getProducts, getReadiness } from '../../api'
+import { getAnnouncements, getHealth, getProducts, getReadiness } from '../../api'
 import { getStoredUser, hasValidAuth } from '../../utils/auth'
 import { assetUrl, conditionLabel, formatPrice } from '../../utils/product'
 
@@ -67,13 +90,18 @@ export default {
     return {
       checking: false,
       loadingProducts: false,
+      loadingAnnouncements: false,
       currentUser: null,
       flaskStatus: { ...pendingStatus },
       mongoStatus: { ...pendingStatus },
+      announcements: [],
       products: [],
     }
   },
   computed: {
+    isAdmin() {
+      return this.currentUser?.role === 'admin'
+    },
     overallState() {
       if (this.checking) return 'checking'
       if (this.flaskStatus.state === 'error') return 'error'
@@ -100,12 +128,13 @@ export default {
   onLoad() {
     this.checkServices()
     this.loadProducts()
+    this.loadAnnouncements()
   },
   onShow() {
     this.currentUser = hasValidAuth() ? getStoredUser() : null
   },
   onPullDownRefresh() {
-    Promise.all([this.checkServices(), this.loadProducts()]).finally(() => {
+    Promise.all([this.checkServices(), this.loadProducts(), this.loadAnnouncements()]).finally(() => {
       uni.stopPullDownRefresh()
     })
   },
@@ -144,6 +173,17 @@ export default {
         this.loadingProducts = false
       }
     },
+    async loadAnnouncements() {
+      this.loadingAnnouncements = true
+      try {
+        const data = await getAnnouncements({ page: 1, page_size: 3 })
+        this.announcements = data.items
+      } catch (_error) {
+        this.announcements = []
+      } finally {
+        this.loadingAnnouncements = false
+      }
+    },
     goProducts() {
       uni.navigateTo({ url: '/pages/products/list' })
     },
@@ -152,6 +192,9 @@ export default {
     },
     goMyProducts() {
       uni.navigateTo({ url: '/pages/products/my' })
+    },
+    goMessages() {
+      uni.navigateTo({ url: '/pages/messages/messages' })
     },
     goBuyTrades() {
       uni.navigateTo({ url: '/pages/trades/buy' })
@@ -166,6 +209,18 @@ export default {
     },
     goDetail(id) {
       uni.navigateTo({ url: `/pages/products/detail?id=${id}` })
+    },
+    goAdminUsers() {
+      uni.navigateTo({ url: '/pages/admin/users' })
+    },
+    goAdminProducts() {
+      uni.navigateTo({ url: '/pages/admin/products' })
+    },
+    goAdminAnnouncements() {
+      uni.navigateTo({ url: '/pages/admin/announcements' })
+    },
+    goAdminLogs() {
+      uni.navigateTo({ url: '/pages/admin/logs' })
     },
   },
 }
@@ -216,7 +271,9 @@ page {
 }
 
 .status-card,
-.product-card {
+.product-card,
+.announcement-card,
+.admin-panel {
   border: 1rpx solid #e3e9e6;
   border-radius: 22rpx;
   background: #fff;
@@ -282,6 +339,33 @@ page {
   color: #fff;
 }
 
+.admin-panel {
+  margin-top: 22rpx;
+  padding: 22rpx;
+}
+
+.panel-title {
+  display: block;
+  margin-bottom: 16rpx;
+  color: #17221e;
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12rpx;
+}
+
+.admin-button {
+  min-width: 0;
+  border-radius: 16rpx;
+  background: #eef4f1;
+  color: #24594e;
+  font-size: 25rpx;
+}
+
 .section-heading {
   justify-content: space-between;
   margin: 42rpx 4rpx 18rpx;
@@ -302,6 +386,30 @@ page {
   color: #75817c;
   font-size: 28rpx;
   text-align: center;
+}
+
+.empty.compact {
+  padding: 32rpx 0;
+}
+
+.announcement-card {
+  margin-bottom: 16rpx;
+  padding: 22rpx;
+}
+
+.announcement-title {
+  display: block;
+  font-size: 29rpx;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.announcement-content {
+  display: block;
+  margin-top: 10rpx;
+  color: #66736e;
+  font-size: 25rpx;
+  line-height: 1.5;
 }
 
 .product-card {

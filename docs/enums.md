@@ -49,3 +49,37 @@ pending -> cancelled
 ```
 
 交易完成时必须同步将商品更新为 `sold`。
+
+## 消息
+
+- 类型：`trade`
+- 已读状态：`is_read=true`、`is_read=false`
+
+当前交易消息标题：
+
+- `收到新的购买请求`
+- `购买请求已确认`
+- `交易请求已取消`
+- `交易已完成`
+
+## 公告
+
+- `published`：已发布，公开公告列表可见
+- `hidden`：已隐藏，仅管理员后台可见
+
+## 操作日志
+
+目标类型：
+
+- `user`
+- `product`
+- `announcement`
+
+动作：
+
+- `user_status_update`：管理员禁用或恢复用户
+- `product_status_update`：管理员更新商品状态
+- `product_delete`：管理员删除商品
+- `announcement_create`：管理员创建公告
+- `announcement_update`：管理员更新公告
+- `announcement_delete`：管理员隐藏公告
