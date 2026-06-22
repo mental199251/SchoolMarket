@@ -33,6 +33,7 @@
         <button class="admin-button" @click="goAdminProducts">商品</button>
         <button class="admin-button" @click="goAdminAnnouncements">公告</button>
         <button class="admin-button" @click="goAdminLogs">日志</button>
+        <button class="admin-button" @click="goAdminStats">统计</button>
       </view>
     </view>
 
@@ -222,6 +223,9 @@ export default {
     goAdminLogs() {
       uni.navigateTo({ url: '/pages/admin/logs' })
     },
+    goAdminStats() {
+      uni.navigateTo({ url: '/pages/admin/stats' })
+    },
   },
 }
 </script>
@@ -354,7 +358,7 @@ page {
 
 .admin-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 12rpx;
 }
 

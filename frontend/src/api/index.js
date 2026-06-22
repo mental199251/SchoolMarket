@@ -266,3 +266,24 @@ export const getAdminLogs = (data = {}) => {
     data,
   })
 }
+
+export const getStatsOverview = (data = {}) => {
+  return request({
+    path: '/api/v1/stats/overview',
+    data,
+  })
+}
+
+export const getStatsCategories = (data = {}) => {
+  return request({
+    path: '/api/v1/stats/categories',
+    data,
+  })
+}
+
+export const getStatsUsers = (data = {}) => {
+  return request({
+    path: '/api/v1/stats/users',
+    data,
+  })
+}

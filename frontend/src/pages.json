@@ -111,6 +111,13 @@
 				"navigationBarTitleText": "操作日志",
 				"enablePullDownRefresh": true
 			}
+		},
+		{
+			"path": "pages/admin/stats",
+			"style": {
+				"navigationBarTitleText": "统计报表",
+				"enablePullDownRefresh": true
+			}
 		}
 	],
 	"globalStyle": {

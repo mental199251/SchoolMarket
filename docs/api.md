@@ -608,3 +608,113 @@ pending -> cancelled
   "created_at": "2026-06-22T10:00:00+00:00"
 }
 ```
+
+## 统计报表
+
+以下接口均要求管理员 token。统计接口支持统一范围参数：
+
+| 参数 | 说明 |
+| --- | --- |
+| `days` | 最近 N 天，默认 30，范围 1-365 |
+| `start_date` / `end_date` | 固定日期范围，格式 `YYYY-MM-DD`，需同时提供 |
+| `limit` | 排行接口返回数量，默认 10，范围 1-50 |
+
+如果同时提供日期范围和 `days`，优先使用 `start_date` / `end_date`。
+
+### GET /api/v1/stats/overview
+
+返回平台概览、状态分布和范围信息。
+
+```json
+{
+  "range": {
+    "start_date": "2026-05-23",
+    "end_date": "2026-06-22",
+    "days": 30
+  },
+  "totals": {
+    "users_total": 3,
+    "new_users": 2,
+    "products_total": 8,
+    "published_products": 4,
+    "trades_total": 5,
+    "created_trades": 3,
+    "completed_trades": 1,
+    "completion_rate": 33.3
+  },
+  "status": {
+    "users": {
+      "active": 3,
+      "disabled": 0
+    },
+    "products": {
+      "available": 6,
+      "off_shelf": 1,
+      "sold": 1
+    },
+    "trades": {
+      "pending": 1,
+      "confirmed": 1,
+      "cancelled": 1,
+      "completed": 2
+    }
+  }
+}
+```
+
+### GET /api/v1/stats/categories
+
+按分类返回发布量和商品状态分布，按发布量降序。
+
+```json
+{
+  "range": {
+    "start_date": "2026-05-23",
+    "end_date": "2026-06-22",
+    "days": 30
+  },
+  "items": [
+    {
+      "category_key": "books",
+      "category_name": "教材资料",
+      "published_count": 3,
+      "available_count": 2,
+      "off_shelf_count": 0,
+      "sold_count": 1
+    }
+  ],
+  "limit": 10
+}
+```
+
+### GET /api/v1/stats/users
+
+返回活跃用户排行。活跃分由发布、成交、买入请求和收到请求综合计算，用于排序，不作为业务结算依据。
+
+```json
+{
+  "range": {
+    "start_date": "2026-05-23",
+    "end_date": "2026-06-22",
+    "days": 30
+  },
+  "items": [
+    {
+      "user": {
+        "id": "66f000000000000000000001",
+        "username": "user_a",
+        "nickname": "普通用户 A",
+        "role": "user",
+        "status": "active",
+        "campus": "东校区"
+      },
+      "published_count": 2,
+      "buy_request_count": 0,
+      "received_request_count": 2,
+      "completed_count": 1,
+      "activity_score": 11
+    }
+  ],
+  "limit": 10
+}
+```

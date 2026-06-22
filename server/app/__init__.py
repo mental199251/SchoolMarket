@@ -12,6 +12,7 @@ from app.routes.categories import categories_bp
 from app.routes.health import health_bp
 from app.routes.messages import messages_bp
 from app.routes.products import products_bp
+from app.routes.stats import stats_bp
 from app.routes.trades import trades_bp
 from app.routes.uploads import uploads_bp
 from app.routes.users import users_bp
@@ -40,6 +41,7 @@ def create_app(config_name=None, config_overrides=None):
     app.register_blueprint(categories_bp, url_prefix="/api/v1/categories")
     app.register_blueprint(messages_bp, url_prefix="/api/v1/messages")
     app.register_blueprint(products_bp, url_prefix="/api/v1/products")
+    app.register_blueprint(stats_bp, url_prefix="/api/v1/stats")
     app.register_blueprint(trades_bp, url_prefix="/api/v1/trades")
     app.register_blueprint(uploads_bp)
     app.register_blueprint(users_bp, url_prefix="/api/v1/users")
