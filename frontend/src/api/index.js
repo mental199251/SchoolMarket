@@ -122,6 +122,13 @@ export const uploadProductImage = (filePath) => {
   })
 }
 
+export const getAiStatus = () => {
+  return request({
+    path: '/api/v1/ai/status',
+    showError: false,
+  })
+}
+
 export const generateProductTitles = (data) => {
   return request({
     path: '/api/v1/ai/title',

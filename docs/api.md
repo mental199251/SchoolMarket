@@ -721,14 +721,36 @@ pending -> cancelled
 
 ## AI 辅助发布
 
-AI 接口均要求登录。后端调用 Ollama 的 `/api/generate` 非流式接口，只返回候选内容，不直接创建或修改商品。Ollama 地址、模型和超时从环境变量读取：
+AI 接口均要求登录。后端调用 Ollama 的 `/api/generate` 非流式接口，只返回候选内容，不直接创建或修改商品。项目默认按“后端机器安装 Ollama + `ollama signin` + cloud 模型名”的方式接入 Ollama Cloud，不在项目中保存 API key。Ollama 地址、模型和超时从环境变量读取：
 
 - `OLLAMA_BASE_URL`
 - `OLLAMA_MODEL`
 - `OLLAMA_CONNECT_TIMEOUT_SECONDS`
 - `OLLAMA_RESPONSE_TIMEOUT_SECONDS`
 
-Ollama 未启动、超时、非 2xx 响应或返回内容无法解析时，接口返回 HTTP 503 和 `AI_UNAVAILABLE`。前端保留原表单内容，用户仍可手工发布。
+Ollama 未启动、未登录、超时、非 2xx 响应或返回内容无法解析时，接口返回 HTTP 503 和 `AI_UNAVAILABLE`。前端保留原表单内容，用户仍可手工发布。
+
+### GET /api/v1/ai/status
+
+检查后端当前 Ollama 配置和本地 Ollama 服务可访问性。该接口不会生成内容，也不会写入 AI 调用日志。
+
+成功：
+
+```json
+{
+  "base_url": "http://127.0.0.1:11434",
+  "model": "gpt-oss:120b-cloud",
+  "cloud_model": true,
+  "service_available": true,
+  "model_listed": false,
+  "ready": true,
+  "setup_hint": "后端机器需安装 Ollama，执行 ollama signin，并保持 ollama serve 运行。",
+  "error_code": null,
+  "message": "Ollama 服务可访问；cloud 模型会在生成时使用本机登录状态访问"
+}
+```
+
+`cloud_model=true` 时，后端仍然请求本机 `OLLAMA_BASE_URL`。Ollama 本地进程会使用 `ollama signin` 保存的登录状态访问 cloud 模型。
 
 ### POST /api/v1/ai/title
 

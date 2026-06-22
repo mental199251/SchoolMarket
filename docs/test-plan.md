@@ -153,6 +153,7 @@ npm run build:mp-weixin
 
 ## M7 自动化测试
 
+- `GET /api/v1/ai/status` 可返回 Ollama 地址、模型、cloud 模型标记、服务可用性和启用提示。
 - `POST /api/v1/ai/title` 登录后可返回标题候选。
 - `POST /api/v1/ai/description` 登录后可返回描述候选。
 - 成功调用会写入 `ai_generation_logs`，记录用户、生成类型、模型、耗时、摘要和状态。
@@ -163,11 +164,16 @@ npm run build:mp-weixin
 
 ## M7 手工验收
 
-1. 启动 MongoDB、Flask 和 Ollama。
-2. 确认 `.env` 中 `OLLAMA_BASE_URL` 和 `OLLAMA_MODEL` 与本机 Ollama 一致。
-3. 使用普通用户登录，进入发布商品页面。
-4. 先填写商品描述、分类、成色和价格，点击“生成标题”，确认出现标题候选。
-5. 采用一个标题，再点击“生成描述”，确认出现描述候选。
-6. 采用描述后发布商品，确认商品详情展示采用后的标题和描述。
-7. 停止 Ollama，再次点击生成按钮，确认页面提示 AI 不可用且原表单内容保留。
-8. 检查 MongoDB `ai_generation_logs`，确认成功和失败调用均有记录。
+1. 在测试 AI 的后端机器上安装 Ollama。
+2. 执行 `ollama signin` 登录 Ollama 账号。
+3. `.env` 使用 cloud 模型配置，例如 `OLLAMA_MODEL=gpt-oss:120b-cloud`，并保持 `OLLAMA_BASE_URL=http://127.0.0.1:11434`。
+4. 启动 MongoDB、Flask 和 Ollama。
+5. 登录后调用 `GET /api/v1/ai/status`，确认 `service_available=true` 且 `cloud_model=true`。
+6. 使用普通用户登录，进入发布商品页面。
+7. 先填写商品描述、分类、成色和价格，点击“生成标题”，确认出现标题候选。
+8. 采用一个标题，再点击“生成描述”，确认出现描述候选。
+9. 采用描述后发布商品，确认商品详情展示采用后的标题和描述。
+10. 退出 Ollama 登录或停止 Ollama，再次点击生成按钮，确认页面提示 AI 不可用且原表单内容保留。
+11. 检查 MongoDB `ai_generation_logs`，确认成功和失败调用均有记录。
+
+本地纯离线模型验收可把 `OLLAMA_MODEL` 改成已拉取的本地模型，例如 `qwen2.5:7b`。

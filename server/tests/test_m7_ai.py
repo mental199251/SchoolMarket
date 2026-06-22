@@ -91,6 +91,46 @@ def test_ai_unavailable_is_logged_and_does_not_require_ollama(client, app, monke
     assert log["error_code"] == "AI_UNAVAILABLE"
 
 
+def test_ai_status_reports_ollama_cloud_setup(client, app, monkeypatch):
+    user = register(client, "m7_status")
+    app.config["OLLAMA_MODEL"] = "gpt-oss:120b-cloud"
+
+    def fake_request(method, path, payload=None):
+        assert method == "GET"
+        assert path == "/tags"
+        assert payload is None
+        return {"models": [{"name": "qwen2.5:7b"}]}
+
+    monkeypatch.setattr("app.services.ai._request_ollama", fake_request)
+
+    response = client.get("/api/v1/ai/status", headers=auth_header(user["token"]))
+    assert response.status_code == 200
+    data = response.get_json()["data"]
+    assert data["cloud_model"] is True
+    assert data["service_available"] is True
+    assert data["model_listed"] is False
+    assert data["ready"] is True
+    assert "ollama signin" in data["setup_hint"]
+
+
+def test_ai_status_reports_unavailable_service(client, monkeypatch):
+    user = register(client, "m7_status_down")
+
+    def fake_request(_method, _path, payload=None):
+        from app.services.ai import AIUnavailable
+
+        raise AIUnavailable("无法连接 Ollama。后端机器需安装 Ollama，执行 ollama signin。")
+
+    monkeypatch.setattr("app.services.ai._request_ollama", fake_request)
+
+    response = client.get("/api/v1/ai/status", headers=auth_header(user["token"]))
+    assert response.status_code == 200
+    data = response.get_json()["data"]
+    assert data["service_available"] is False
+    assert data["ready"] is False
+    assert data["error_code"] == "AI_UNAVAILABLE"
+
+
 @pytest.mark.parametrize(
     "endpoint,payload",
     [

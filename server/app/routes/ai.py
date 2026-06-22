@@ -1,7 +1,7 @@
 from flask import Blueprint, g, request
 
 from app.middleware.auth import require_auth
-from app.services.ai import AIError, generate_descriptions, generate_titles
+from app.services.ai import AIError, generate_descriptions, generate_titles, get_ai_status
 from app.utils.response import error_response, success_response
 
 
@@ -14,6 +14,12 @@ def _json_payload():
 
 def _ai_error(error):
     return error_response(error.error_code, error.message, error.status_code)
+
+
+@ai_bp.get("/status")
+@require_auth
+def status():
+    return success_response(data=get_ai_status())
 
 
 @ai_bp.post("/title")

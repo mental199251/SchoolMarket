@@ -74,6 +74,24 @@ python scripts/seed_data.py
 | `user_b` | `Password123` | 普通用户 |
 | `admin` | `Admin12345` | 管理员 |
 
+## AI 模型启用
+
+AI 发布助手通过后端访问本机 Ollama HTTP API。默认配置使用 Ollama Cloud 模型，不需要在项目中配置 API key；在运行后端的机器上安装 Ollama 后执行：
+
+```bash
+ollama signin
+ollama serve
+```
+
+`.env` 中保持：
+
+```env
+OLLAMA_BASE_URL=http://127.0.0.1:11434
+OLLAMA_MODEL=gpt-oss:120b-cloud
+```
+
+登录应用后可通过 `GET /api/v1/ai/status` 检查 Ollama 服务和模型配置。若改用完全本地模型，将 `OLLAMA_MODEL` 改为已拉取的本地模型名即可。
+
 ## 启动前端
 
 H5：

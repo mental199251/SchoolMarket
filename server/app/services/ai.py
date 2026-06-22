@@ -121,11 +121,24 @@ def _description_prompt(context):
 
 def _ollama_endpoint():
     base_url = current_app.config["OLLAMA_BASE_URL"].rstrip("/")
-    return f"{base_url}/api/generate"
+    if base_url.endswith("/api"):
+        return base_url
+    return f"{base_url}/api"
 
 
-def _post_ollama_generate(prompt):
-    endpoint = _ollama_endpoint()
+def _is_cloud_model():
+    model = current_app.config["OLLAMA_MODEL"]
+    return model.endswith("-cloud") or model.endswith(":cloud")
+
+
+def _setup_hint():
+    if _is_cloud_model():
+        return "后端机器需安装 Ollama，执行 ollama signin，并保持 ollama serve 运行。"
+    return "后端机器需安装 Ollama，执行 ollama pull <模型名>，并保持 ollama serve 运行。"
+
+
+def _request_ollama(method, path, payload=None):
+    endpoint = f"{_ollama_endpoint()}{path}"
     parsed = urlparse(endpoint)
     if parsed.scheme not in {"http", "https"} or not parsed.netloc:
         raise AIUnavailable("AI 服务地址配置无效")
@@ -137,15 +150,9 @@ def _post_ollama_generate(prompt):
     if parsed.query:
         path = f"{path}?{parsed.query}"
 
-    body = json.dumps(
-        {
-            "model": current_app.config["OLLAMA_MODEL"],
-            "prompt": prompt,
-            "stream": False,
-            "options": {"temperature": 0.35},
-        },
-        ensure_ascii=False,
-    ).encode("utf-8")
+    body = None
+    if payload is not None:
+        body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
     headers = {"Content-Type": "application/json"}
     connect_timeout = current_app.config["OLLAMA_CONNECT_TIMEOUT_SECONDS"]
     response_timeout = current_app.config["OLLAMA_RESPONSE_TIMEOUT_SECONDS"]
@@ -155,26 +162,77 @@ def _post_ollama_generate(prompt):
         connection.connect()
         if connection.sock:
             connection.sock.settimeout(response_timeout)
-        connection.request("POST", path, body=body, headers=headers)
+        connection.request(method, path, body=body, headers=headers)
         response = connection.getresponse()
         raw = response.read().decode("utf-8")
     except OSError as exc:
-        raise AIUnavailable("无法连接 Ollama，请确认服务已启动") from exc
+        raise AIUnavailable(f"无法连接 Ollama。{_setup_hint()}") from exc
     finally:
         connection.close()
 
     if response.status < 200 or response.status >= 300:
+        if _is_cloud_model() and response.status in {401, 403}:
+            raise AIUnavailable("Ollama Cloud 未登录或无权限，请在后端机器执行 ollama signin")
+        if response.status == 404:
+            raise AIUnavailable(f"Ollama 模型不可用，请确认模型 {current_app.config['OLLAMA_MODEL']} 可访问")
         raise AIUnavailable(f"Ollama 返回异常状态：{response.status}")
 
     try:
-        payload = json.loads(raw)
+        return json.loads(raw)
     except json.JSONDecodeError as exc:
         raise AIUnavailable("Ollama 返回格式无效") from exc
 
+
+def _post_ollama_generate(prompt):
+    payload = _request_ollama(
+        "POST",
+        "/generate",
+        {
+            "model": current_app.config["OLLAMA_MODEL"],
+            "prompt": prompt,
+            "stream": False,
+            "options": {"temperature": 0.35},
+        },
+    )
     text = payload.get("response")
     if not isinstance(text, str) or not text.strip():
         raise AIUnavailable("Ollama 未返回有效内容")
     return text
+
+
+def get_ai_status():
+    model = current_app.config["OLLAMA_MODEL"]
+    data = {
+        "base_url": current_app.config["OLLAMA_BASE_URL"],
+        "model": model,
+        "cloud_model": _is_cloud_model(),
+        "service_available": False,
+        "model_listed": False,
+        "ready": False,
+        "setup_hint": _setup_hint(),
+        "error_code": None,
+        "message": "",
+    }
+    try:
+        tags = _request_ollama("GET", "/tags")
+    except AIError as error:
+        data["error_code"] = error.error_code
+        data["message"] = error.message
+        return data
+
+    models = tags.get("models", [])
+    listed_names = {
+        item.get("name") or item.get("model")
+        for item in models
+        if isinstance(item, dict)
+    }
+    data["service_available"] = True
+    data["model_listed"] = model in listed_names
+    data["ready"] = data["model_listed"] or data["cloud_model"]
+    data["message"] = "Ollama 服务可访问"
+    if data["cloud_model"] and not data["model_listed"]:
+        data["message"] = "Ollama 服务可访问；cloud 模型会在生成时使用本机登录状态访问"
+    return data
 
 
 def _extract_json_object(text):
