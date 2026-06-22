@@ -718,3 +718,81 @@ pending -> cancelled
   "limit": 10
 }
 ```
+
+## AI 辅助发布
+
+AI 接口均要求登录。后端调用 Ollama 的 `/api/generate` 非流式接口，只返回候选内容，不直接创建或修改商品。Ollama 地址、模型和超时从环境变量读取：
+
+- `OLLAMA_BASE_URL`
+- `OLLAMA_MODEL`
+- `OLLAMA_CONNECT_TIMEOUT_SECONDS`
+- `OLLAMA_RESPONSE_TIMEOUT_SECONDS`
+
+Ollama 未启动、超时、非 2xx 响应或返回内容无法解析时，接口返回 HTTP 503 和 `AI_UNAVAILABLE`。前端保留原表单内容，用户仍可手工发布。
+
+### POST /api/v1/ai/title
+
+根据商品描述、分类、成色和价格生成标题候选。
+
+请求：
+
+```json
+{
+  "description": "同济版高等数学教材，八成新，附少量课堂笔记",
+  "category_name": "教材资料",
+  "condition": "good",
+  "price_cents": 2800
+}
+```
+
+成功：
+
+```json
+{
+  "candidates": [
+    "高数教材带笔记",
+    "同济高数二手教材",
+    "课堂笔记高数教材"
+  ],
+  "model": "qwen2.5:7b",
+  "duration_ms": 1234,
+  "log_id": "66f000000000000000000070"
+}
+```
+
+### POST /api/v1/ai/description
+
+根据标题、分类、成色、价格和现有描述生成描述候选。
+
+请求：
+
+```json
+{
+  "title": "高等数学教材",
+  "category_name": "教材资料",
+  "condition": "good",
+  "price_cents": 2800,
+  "description": "有课堂笔记"
+}
+```
+
+成功响应字段同标题建议。
+
+### AI 调用日志
+
+每次成功或失败的 AI 调用都会写入 `ai_generation_logs`，字段包括：
+
+```json
+{
+  "user_id": "66f000000000000000000001",
+  "generation_type": "title",
+  "model": "qwen2.5:7b",
+  "status": "success",
+  "prompt_summary": "教材资料 / good / 28.00 元 / 同济版高等数学教材...",
+  "response_summary": "高数教材带笔记 | 同济高数二手教材",
+  "duration_ms": 1234,
+  "error_code": null,
+  "error_message": "",
+  "created_at": "2026-06-22T10:00:00+00:00"
+}
+```

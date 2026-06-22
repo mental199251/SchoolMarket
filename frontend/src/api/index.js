@@ -122,6 +122,22 @@ export const uploadProductImage = (filePath) => {
   })
 }
 
+export const generateProductTitles = (data) => {
+  return request({
+    path: '/api/v1/ai/title',
+    method: 'POST',
+    data,
+  })
+}
+
+export const generateProductDescriptions = (data) => {
+  return request({
+    path: '/api/v1/ai/description',
+    method: 'POST',
+    data,
+  })
+}
+
 export const createTrade = (data) => {
   return request({
     path: '/api/v1/trades',

@@ -55,6 +55,16 @@ class BaseConfig:
         os.getenv("UPLOAD_IMAGE_MAX_BYTES"),
         5 * 1024 * 1024,
     )
+    OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434")
+    OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:7b")
+    OLLAMA_CONNECT_TIMEOUT_SECONDS = _as_int(
+        os.getenv("OLLAMA_CONNECT_TIMEOUT_SECONDS"),
+        3,
+    )
+    OLLAMA_RESPONSE_TIMEOUT_SECONDS = _as_int(
+        os.getenv("OLLAMA_RESPONSE_TIMEOUT_SECONDS"),
+        20,
+    )
 
 
 class DevelopmentConfig(BaseConfig):

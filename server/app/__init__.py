@@ -6,6 +6,7 @@ from app.config.settings import CONFIGS
 from app.extensions import init_extensions
 from app.middleware.request_context import register_request_context
 from app.routes.admin import admin_bp
+from app.routes.ai import ai_bp
 from app.routes.announcements import announcements_bp
 from app.routes.auth import auth_bp
 from app.routes.categories import categories_bp
@@ -36,6 +37,7 @@ def create_app(config_name=None, config_overrides=None):
     register_error_handlers(app)
     app.register_blueprint(health_bp)
     app.register_blueprint(admin_bp, url_prefix="/api/v1/admin")
+    app.register_blueprint(ai_bp, url_prefix="/api/v1/ai")
     app.register_blueprint(announcements_bp, url_prefix="/api/v1/announcements")
     app.register_blueprint(auth_bp, url_prefix="/api/v1/auth")
     app.register_blueprint(categories_bp, url_prefix="/api/v1/categories")

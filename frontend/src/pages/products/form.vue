@@ -5,8 +5,24 @@
     </view>
 
     <view class="form-card">
-      <text class="label">标题</text>
+      <view class="field-header">
+        <text class="label inline">标题</text>
+        <button
+          class="small-button"
+          :loading="generatingTitle"
+          :disabled="generatingTitle"
+          @click="generateTitles"
+        >
+          生成标题
+        </button>
+      </view>
       <input v-model="form.title" class="input" placeholder="例如：高等数学教材" />
+      <view v-if="titleSuggestions.length" class="suggestion-list">
+        <view v-for="item in titleSuggestions" :key="item" class="suggestion-item">
+          <text class="suggestion-text">{{ item }}</text>
+          <button class="apply-button" @click="applyTitle(item)">采用</button>
+        </view>
+      </view>
 
       <text class="label">价格</text>
       <input v-model="priceText" class="input" type="digit" placeholder="例如：28.00" />
@@ -21,12 +37,28 @@
         <view class="select">{{ selectedConditionName }}</view>
       </picker>
 
-      <text class="label">描述</text>
+      <view class="field-header">
+        <text class="label inline">描述</text>
+        <button
+          class="small-button"
+          :loading="generatingDescription"
+          :disabled="generatingDescription"
+          @click="generateDescriptions"
+        >
+          生成描述
+        </button>
+      </view>
       <textarea
         v-model="form.description"
         class="textarea"
         placeholder="补充型号、使用情况、交付地点等信息"
       />
+      <view v-if="descriptionSuggestions.length" class="suggestion-list">
+        <view v-for="item in descriptionSuggestions" :key="item" class="suggestion-item description">
+          <text class="suggestion-text">{{ item }}</text>
+          <button class="apply-button" @click="applyDescription(item)">采用</button>
+        </view>
+      </view>
 
       <view class="image-header">
         <text class="label inline">图片</text>
@@ -53,6 +85,8 @@
 <script>
 import {
   createProduct,
+  generateProductDescriptions,
+  generateProductTitles,
   getCategories,
   getProduct,
   updateProduct,
@@ -67,10 +101,14 @@ export default {
   data() {
     return {
       id: '',
+      generatingDescription: false,
+      generatingTitle: false,
       uploading: false,
       submitting: false,
       categories: [],
+      descriptionSuggestions: [],
       priceText: '',
+      titleSuggestions: [],
       form: {
         title: '',
         description: '',
@@ -136,6 +174,40 @@ export default {
         images: product.images || [],
       }
       this.priceText = (product.price_cents / 100).toFixed(2)
+    },
+    aiPayload() {
+      const price = Number(this.priceText)
+      return {
+        title: this.form.title,
+        description: this.form.description,
+        category_name: this.selectedCategoryName === '请选择分类' ? '' : this.selectedCategoryName,
+        condition: this.form.condition,
+        price_cents: Number.isFinite(price) && price > 0 ? Math.round(price * 100) : '',
+      }
+    },
+    async generateTitles() {
+      this.generatingTitle = true
+      try {
+        const data = await generateProductTitles(this.aiPayload())
+        this.titleSuggestions = data.candidates
+      } finally {
+        this.generatingTitle = false
+      }
+    },
+    async generateDescriptions() {
+      this.generatingDescription = true
+      try {
+        const data = await generateProductDescriptions(this.aiPayload())
+        this.descriptionSuggestions = data.candidates
+      } finally {
+        this.generatingDescription = false
+      }
+    },
+    applyTitle(value) {
+      this.form.title = value
+    },
+    applyDescription(value) {
+      this.form.description = value
     },
     onCategoryChange(event) {
       const index = Number(event.detail.value)
@@ -242,6 +314,17 @@ page {
   background: #fff;
 }
 
+.field-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 24rpx 0 12rpx;
+}
+
+.field-header:first-child {
+  margin-top: 0;
+}
+
 .label {
   display: block;
   margin: 24rpx 0 12rpx;
@@ -295,6 +378,44 @@ page {
   background: #eef4f1;
   color: #24594e;
   font-size: 25rpx;
+}
+
+.suggestion-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  margin-top: 14rpx;
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  padding: 16rpx;
+  border: 1rpx solid #dbe3df;
+  border-radius: 16rpx;
+  background: #f8faf9;
+}
+
+.suggestion-item.description {
+  align-items: flex-start;
+}
+
+.suggestion-text {
+  flex: 1;
+  min-width: 0;
+  color: #17221e;
+  font-size: 26rpx;
+  line-height: 1.45;
+}
+
+.apply-button {
+  width: 104rpx;
+  flex-shrink: 0;
+  border-radius: 14rpx;
+  background: #173f36;
+  color: #fff;
+  font-size: 24rpx;
 }
 
 .image-grid {

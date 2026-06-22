@@ -25,6 +25,7 @@ def app():
     app.extensions.pop("messages_indexes_ready", None)
     app.extensions.pop("operation_logs_indexes_ready", None)
     app.extensions.pop("announcements_indexes_ready", None)
+    app.extensions.pop("ai_generation_logs_indexes_ready", None)
     return app
 
 

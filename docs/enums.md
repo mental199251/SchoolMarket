@@ -83,3 +83,15 @@ pending -> cancelled
 - `announcement_create`：管理员创建公告
 - `announcement_update`：管理员更新公告
 - `announcement_delete`：管理员隐藏公告
+
+## AI 生成日志
+
+生成类型：
+
+- `title`：商品标题建议
+- `description`：商品描述建议
+
+调用状态：
+
+- `success`：Ollama 返回并解析出候选内容
+- `failed`：Ollama 不可用、超时、返回异常或候选解析失败
