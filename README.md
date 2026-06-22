@@ -12,16 +12,16 @@
 - M5：站内消息、管理员用户/商品/公告治理和操作日志
 - M6：管理端概览、热门分类和活跃用户统计报表
 - M7：Ollama 商品标题和描述建议、AI 调用日志和失败降级
-
-后续将进入全量系统测试、演示数据和答辩交付整理。
+- M8：系统回归测试、重复操作保护、备份脚本和答辩交付文档
 
 ## 环境要求
 
 - Node.js 20
 - Python 3.11 或 3.12
 - MongoDB 7.x
+- MongoDB Database Tools（备份恢复需要）
 - 微信开发者工具
-- Ollama（M7 才需要）
+- Ollama（AI 功能需要）
 
 ## 初始化
 
@@ -92,6 +92,18 @@ OLLAMA_MODEL=gpt-oss:120b-cloud
 
 登录应用后可通过 `GET /api/v1/ai/status` 检查 Ollama 服务和模型配置。若改用完全本地模型，将 `OLLAMA_MODEL` 改为已拉取的本地模型名即可。
 
+## 数据备份
+
+安装 MongoDB Database Tools 后执行：
+
+```bash
+cd server
+source .venv/bin/activate
+python scripts/backup_database.py
+```
+
+默认备份到 `server/backups/`，该目录不会提交到 Git。恢复命令见 [部署与备份说明](docs/deployment.md)。
+
 ## 启动前端
 
 H5：
@@ -127,7 +139,10 @@ npm run build:mp-weixin
 更多约定参见：
 
 - [开发环境](docs/development.md)
+- [部署与备份说明](docs/deployment.md)
 - [API 契约](docs/api.md)
 - [状态枚举](docs/enums.md)
 - [测试计划](docs/test-plan.md)
+- [M8 测试报告](docs/m8-test-report.md)
+- [答辩演示脚本](docs/demo-script.md)
 - [完整开发计划](docs/development-plan.md)

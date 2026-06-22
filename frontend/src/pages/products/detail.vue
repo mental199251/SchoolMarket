@@ -41,13 +41,32 @@
       <view v-if="isOwner" class="owner-actions">
         <button class="primary-button" @click="goEdit">编辑商品</button>
         <button class="secondary-button" @click="goSellTrades">收到的请求</button>
-        <button v-if="product.status === 'available'" class="secondary-button" @click="changeStatus('off_shelf')">
+        <button
+          v-if="product.status === 'available'"
+          class="secondary-button"
+          :loading="productAction === 'off_shelf'"
+          :disabled="Boolean(productAction)"
+          @click="changeStatus('off_shelf')"
+        >
           下架商品
         </button>
-        <button v-if="product.status === 'off_shelf'" class="secondary-button" @click="changeStatus('restore')">
+        <button
+          v-if="product.status === 'off_shelf'"
+          class="secondary-button"
+          :loading="productAction === 'restore'"
+          :disabled="Boolean(productAction)"
+          @click="changeStatus('restore')"
+        >
           恢复上架
         </button>
-        <button class="danger-button" @click="confirmDelete">删除商品</button>
+        <button
+          class="danger-button"
+          :loading="productAction === 'delete'"
+          :disabled="Boolean(productAction)"
+          @click="confirmDelete"
+        >
+          删除商品
+        </button>
       </view>
 
       <view v-else class="buyer-actions">
@@ -81,6 +100,7 @@ export default {
     return {
       id: '',
       loading: true,
+      productAction: '',
       submittingTrade: false,
       product: {},
       currentUser: null,
@@ -144,25 +164,37 @@ export default {
       })
     },
     changeStatus(action) {
+      if (this.productAction) return
       const title = action === 'off_shelf' ? '确认下架该商品？' : '确认恢复上架？'
       uni.showModal({
         title,
         success: async (result) => {
           if (!result.confirm) return
-          this.product = await updateProductStatus(this.product.id, { action })
-          uni.showToast({ title: '状态已更新', icon: 'success' })
+          this.productAction = action
+          try {
+            this.product = await updateProductStatus(this.product.id, { action })
+            uni.showToast({ title: '状态已更新', icon: 'success' })
+          } finally {
+            this.productAction = ''
+          }
         },
       })
     },
     confirmDelete() {
+      if (this.productAction) return
       uni.showModal({
         title: '确认删除该商品？',
         content: '删除后不会再出现在商品列表中。',
         success: async (result) => {
           if (!result.confirm) return
-          await deleteProduct(this.product.id)
-          uni.showToast({ title: '已删除', icon: 'success' })
-          uni.navigateBack()
+          this.productAction = 'delete'
+          try {
+            await deleteProduct(this.product.id)
+            uni.showToast({ title: '已删除', icon: 'success' })
+            uni.navigateBack()
+          } finally {
+            this.productAction = ''
+          }
         },
       })
     },

@@ -35,11 +35,19 @@
       </view>
 
       <view class="actions">
-        <view v-if="trade.status === 'pending'" class="action-button" @click="runAction(trade, 'cancel')">
-          取消请求
+        <view
+          v-if="trade.status === 'pending'"
+          :class="['action-button', { disabled: isActionRunning(trade, 'cancel') }]"
+          @click="runAction(trade, 'cancel')"
+        >
+          {{ isActionRunning(trade, 'cancel') ? '处理中' : '取消请求' }}
         </view>
-        <view v-if="trade.status === 'confirmed'" class="action-button primary" @click="runAction(trade, 'complete')">
-          标记完成
+        <view
+          v-if="trade.status === 'confirmed'"
+          :class="['action-button', 'primary', { disabled: isActionRunning(trade, 'complete') }]"
+          @click="runAction(trade, 'complete')"
+        >
+          {{ isActionRunning(trade, 'complete') ? '处理中' : '标记完成' }}
         </view>
       </view>
     </view>
@@ -60,6 +68,7 @@ export default {
   data() {
     return {
       loading: false,
+      activeActionKey: '',
       trades: [],
       filters: {
         page: 1,
@@ -113,7 +122,14 @@ export default {
     goProduct(id) {
       uni.navigateTo({ url: `/pages/products/detail?id=${id}` })
     },
+    actionKeyFor(trade, action) {
+      return `${trade.id}:${action}`
+    },
+    isActionRunning(trade, action) {
+      return this.activeActionKey === this.actionKeyFor(trade, action)
+    },
     runAction(trade, action) {
+      if (this.activeActionKey) return
       const config = {
         cancel: {
           title: '确认取消请求？',
@@ -131,9 +147,14 @@ export default {
         title: config.title,
         success: async (result) => {
           if (!result.confirm) return
-          await config.request()
-          uni.showToast({ title: config.toast, icon: 'success' })
-          this.fetchTrades()
+          this.activeActionKey = this.actionKeyFor(trade, action)
+          try {
+            await config.request()
+            uni.showToast({ title: config.toast, icon: 'success' })
+            this.fetchTrades()
+          } finally {
+            this.activeActionKey = ''
+          }
         },
       })
     },
@@ -307,5 +328,9 @@ page {
 .action-button.primary {
   background: #173f36;
   color: #fff;
+}
+
+.action-button.disabled {
+  opacity: 0.55;
 }
 </style>

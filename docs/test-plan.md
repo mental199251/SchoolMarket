@@ -177,3 +177,28 @@ npm run build:mp-weixin
 11. 检查 MongoDB `ai_generation_logs`，确认成功和失败调用均有记录。
 
 本地纯离线模型验收可把 `OLLAMA_MODEL` 改成已拉取的本地模型，例如 `qwen2.5:7b`。
+
+## M8 自动化测试
+
+- 主流程回归：用户 A 发布商品，用户 B 发起购买，卖家确认，买家完成交易，商品变为已售。
+- 接口响应结构保持统一信封：`success`、`data`、`message`、`error_code`。
+- 重复购买请求返回 `DUPLICATE_TRADE_REQUEST`。
+- 重复完成或旧状态操作返回 409，并在响应中带回最新交易状态。
+- 上传伪造图片、超大图片和路径型文件名均被安全处理。
+- AI 返回不可用候选时返回 `AI_UNAVAILABLE`，并写入失败日志。
+- 全量后端测试通过：`python3 -m pytest`。
+- 前端 H5 构建通过：`npm run build:h5`。
+- 微信小程序构建通过：`npm run build:mp-weixin`。
+
+## M8 手工验收
+
+1. 按 [部署与备份说明](deployment.md) 启动 MongoDB、Flask、Ollama 和前端。
+2. 按 [答辩演示脚本](demo-script.md) 完整执行用户 A -> 用户 B -> 用户 A -> 用户 B 的交易闭环。
+3. 在微信开发者工具导入 `frontend/dist/dev/mp-weixin`，重复主流程、管理端和 AI 生成流程。
+4. 检查普通用户不能进入管理端，管理员操作日志可追踪。
+5. 检查商品发布表单、价格、分类、成色、图片上传和 AI 候选采用。
+6. 快速连续点击交易确认、取消和完成按钮，确认页面只发起一次操作。
+7. 停止 Ollama 后点击 AI 生成，确认提示不可用且表单内容保留。
+8. 停止 MongoDB 后访问 `/ready`，确认返回 `DATABASE_UNAVAILABLE`。
+9. 执行 `python scripts/backup_database.py`，确认生成数据库备份目录。
+10. 对照 [M8 测试报告](m8-test-report.md) 记录自动化测试和人工验收结果。

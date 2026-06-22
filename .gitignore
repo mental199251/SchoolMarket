@@ -21,3 +21,4 @@ frontend/dist/
 
 server/uploads/
 server/logs/
+server/backups/
