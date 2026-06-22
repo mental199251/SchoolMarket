@@ -189,6 +189,20 @@ def update_product_status(product_id, status):
     )
 
 
+def mark_product_sold(product_id):
+    ensure_product_indexes()
+    now = utc_now_iso()
+    return _collection().find_one_and_update(
+        {
+            "_id": ObjectId(product_id),
+            "deleted_at": None,
+            "status": {"$ne": "sold"},
+        },
+        {"$set": {"status": "sold", "updated_at": now}},
+        return_document=ReturnDocument.AFTER,
+    )
+
+
 def delete_product(product_id):
     ensure_product_indexes()
     now = utc_now_iso()

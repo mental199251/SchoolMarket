@@ -62,6 +62,20 @@
 				"navigationBarTitleText": "我的商品",
 				"enablePullDownRefresh": true
 			}
+		},
+		{
+			"path": "pages/trades/buy",
+			"style": {
+				"navigationBarTitleText": "我的购买",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/trades/sell",
+			"style": {
+				"navigationBarTitleText": "收到的请求",
+				"enablePullDownRefresh": true
+			}
 		}
 	],
 	"globalStyle": {

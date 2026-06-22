@@ -29,6 +29,18 @@ export const statusLabel = (value) => {
   return statusOptions.find((item) => item.value === value)?.label || '未知状态'
 }
 
+export const tradeStatusOptions = [
+  { value: '', label: '全部状态' },
+  { value: 'pending', label: '待处理' },
+  { value: 'confirmed', label: '已确认' },
+  { value: 'cancelled', label: '已取消' },
+  { value: 'completed', label: '已完成' },
+]
+
+export const tradeStatusLabel = (value) => {
+  return tradeStatusOptions.find((item) => item.value === value)?.label || '未知状态'
+}
+
 export const formatPrice = (priceCents) => {
   const cents = Number(priceCents) || 0
   return `¥${(cents / 100).toFixed(2)}`

@@ -75,3 +75,30 @@ npm run build:mp-weixin
 6. 使用 `user_b` 登录，确认能搜索并查看 `user_a` 发布的商品详情。
 7. 切回 `user_a`，进入我的商品，编辑、下架、恢复该商品。
 8. 确认 `user_b` 无法编辑 `user_a` 的商品。
+
+## M4 自动化测试
+
+- `POST /api/v1/trades` 可对 `available` 商品发起购买请求。
+- 自购返回 `FORBIDDEN`。
+- 同一买家对同一商品重复有效请求返回 `DUPLICATE_TRADE_REQUEST`。
+- `GET /api/v1/trades/my-buy` 返回当前买家的请求。
+- `GET /api/v1/trades/my-sell` 返回当前卖家的请求。
+- 非卖家确认返回 `FORBIDDEN`。
+- 非参与者取消或完成返回 `FORBIDDEN`。
+- 卖家可将 `pending` 确认为 `confirmed`。
+- 买家或卖家可将 `pending` 取消为 `cancelled`。
+- 买家或卖家可将 `confirmed` 完成为 `completed`，商品同步变为 `sold`。
+- 对已取消或已完成交易重复操作返回 HTTP 409，并带回最新交易状态。
+- 下架、已售或不存在商品不能发起交易。
+
+## M4 手工验收
+
+1. 启动 MongoDB 和 Flask。
+2. 执行 `python scripts/seed_data.py` 初始化分类、账号和示例商品。
+3. 使用 `user_a` 发布或确认已有一个 `available` 商品。
+4. 使用 `user_b` 打开商品详情并发起购买。
+5. 在 `user_b` 的“我的购买”中确认请求为待处理。
+6. 切换到 `user_a`，在“收到的请求”中确认该请求。
+7. 任一参与者标记线下交易完成。
+8. 回到商品详情，确认商品状态为已成交，公开列表不再展示该商品。
+9. 验证自购、重复请求、非卖家确认、非参与者完成和重复完成会被拒绝。

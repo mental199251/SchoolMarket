@@ -18,6 +18,8 @@
       <button class="quick-button primary" @click="goProducts">浏览商品</button>
       <button class="quick-button" @click="goPublish">发布商品</button>
       <button class="quick-button" @click="goMyProducts">我的商品</button>
+      <button class="quick-button" @click="goBuyTrades">我的购买</button>
+      <button class="quick-button" @click="goSellTrades">收到请求</button>
       <button class="quick-button" @click="goProfile">
         {{ currentUser ? '个人中心' : '登录 / 注册' }}
       </button>
@@ -150,6 +152,12 @@ export default {
     },
     goMyProducts() {
       uni.navigateTo({ url: '/pages/products/my' })
+    },
+    goBuyTrades() {
+      uni.navigateTo({ url: '/pages/trades/buy' })
+    },
+    goSellTrades() {
+      uni.navigateTo({ url: '/pages/trades/sell' })
     },
     goProfile() {
       uni.navigateTo({

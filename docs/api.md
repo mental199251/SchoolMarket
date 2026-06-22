@@ -337,3 +337,88 @@
 - `restore`：已下架商品恢复为可交易。
 
 已售商品返回 `PRODUCT_UNAVAILABLE`。
+
+## 交易请求
+
+### 交易对象
+
+```json
+{
+  "id": "66f000000000000000000030",
+  "product_id": "66f000000000000000000020",
+  "buyer_id": "66f000000000000000000002",
+  "seller_id": "66f000000000000000000001",
+  "product": {},
+  "buyer": {},
+  "seller": {},
+  "status": "pending",
+  "message": "想买这个",
+  "created_at": "2026-06-22T10:00:00+00:00",
+  "updated_at": "2026-06-22T10:00:00+00:00",
+  "confirmed_at": null,
+  "cancelled_at": null,
+  "completed_at": null,
+  "completed_by": null
+}
+```
+
+状态流转：
+
+```text
+pending -> confirmed -> completed
+pending -> cancelled
+```
+
+### POST /api/v1/trades
+
+受保护接口。买家对可交易商品发起购买请求。
+
+请求：
+
+```json
+{
+  "product_id": "66f000000000000000000020",
+  "message": "想买这个，今晚可以线下交易"
+}
+```
+
+成功：HTTP 201，返回交易对象。
+
+失败：
+
+- `FORBIDDEN`：购买自己发布的商品。
+- `PRODUCT_UNAVAILABLE`：商品不存在、已售、下架或状态不可购买。
+- `DUPLICATE_TRADE_REQUEST`：同一买家对同一商品已有 `pending` 或 `confirmed` 请求。
+
+### GET /api/v1/trades/my-buy
+
+受保护接口。返回当前用户作为买家的交易请求。
+
+查询参数：
+
+| 参数 | 说明 |
+| --- | --- |
+| `page` / `page_size` | 分页，`page_size` 最大 50 |
+| `status` | `pending`、`confirmed`、`cancelled`、`completed` |
+
+### GET /api/v1/trades/my-sell
+
+受保护接口。返回当前用户作为卖家的交易请求。查询参数同 `my-buy`。
+
+### PUT /api/v1/trades/{id}/confirm
+
+受保护接口。只有卖家可以确认 `pending` 请求。
+
+成功返回更新后的交易对象，状态为 `confirmed`。
+
+### PUT /api/v1/trades/{id}/cancel
+
+受保护接口。买家或卖家可以取消 `pending` 请求。
+
+成功返回更新后的交易对象，状态为 `cancelled`。
+
+### PUT /api/v1/trades/{id}/complete
+
+受保护接口。买家或卖家可以将 `confirmed` 请求标记为线下完成。完成时商品同步更新为 `sold`。
+
+状态已变化或商品已不可完成时返回 HTTP 409，并在 `data.trade` 中返回最新交易状态。

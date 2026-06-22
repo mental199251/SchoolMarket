@@ -40,6 +40,7 @@
 
       <view v-if="isOwner" class="owner-actions">
         <button class="primary-button" @click="goEdit">编辑商品</button>
+        <button class="secondary-button" @click="goSellTrades">收到的请求</button>
         <button v-if="product.status === 'available'" class="secondary-button" @click="changeStatus('off_shelf')">
           下架商品
         </button>
@@ -48,13 +49,26 @@
         </button>
         <button class="danger-button" @click="confirmDelete">删除商品</button>
       </view>
+
+      <view v-else class="buyer-actions">
+        <button
+          v-if="product.status === 'available'"
+          class="primary-button"
+          :loading="submittingTrade"
+          :disabled="submittingTrade"
+          @click="requestTrade"
+        >
+          发起购买
+        </button>
+        <button class="secondary-button" @click="goBuyTrades">我的购买</button>
+      </view>
     </view>
   </view>
 </template>
 
 <script>
-import { deleteProduct, getProduct, updateProductStatus } from '../../api'
-import { getStoredUser } from '../../utils/auth'
+import { createTrade, deleteProduct, getProduct, updateProductStatus } from '../../api'
+import { getAuthToken, getStoredUser } from '../../utils/auth'
 import {
   assetUrl,
   conditionLabel,
@@ -67,6 +81,7 @@ export default {
     return {
       id: '',
       loading: true,
+      submittingTrade: false,
       product: {},
       currentUser: null,
     }
@@ -100,6 +115,33 @@ export default {
     },
     goEdit() {
       uni.navigateTo({ url: `/pages/products/form?id=${this.product.id}` })
+    },
+    goBuyTrades() {
+      uni.navigateTo({ url: '/pages/trades/buy' })
+    },
+    goSellTrades() {
+      uni.navigateTo({ url: '/pages/trades/sell' })
+    },
+    requestTrade() {
+      if (!getAuthToken()) {
+        uni.navigateTo({ url: '/pages/auth/login' })
+        return
+      }
+      uni.showModal({
+        title: '确认发起购买？',
+        content: '卖家确认后，双方线下完成交易。',
+        success: async (result) => {
+          if (!result.confirm) return
+          this.submittingTrade = true
+          try {
+            await createTrade({ product_id: this.product.id })
+            uni.showToast({ title: '请求已发送', icon: 'success' })
+            uni.navigateTo({ url: '/pages/trades/buy' })
+          } finally {
+            this.submittingTrade = false
+          }
+        },
+      })
     },
     changeStatus(action) {
       const title = action === 'off_shelf' ? '确认下架该商品？' : '确认恢复上架？'
@@ -217,7 +259,8 @@ page {
 
 .seller-row,
 .section,
-.owner-actions {
+.owner-actions,
+.buyer-actions {
   margin-top: 26rpx;
   padding: 28rpx;
   border: 1rpx solid #e3e9e6;

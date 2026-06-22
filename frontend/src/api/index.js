@@ -121,3 +121,46 @@ export const uploadProductImage = (filePath) => {
     name: 'images',
   })
 }
+
+export const createTrade = (data) => {
+  return request({
+    path: '/api/v1/trades',
+    method: 'POST',
+    data,
+  })
+}
+
+export const getMyBuyTrades = (data = {}) => {
+  return request({
+    path: '/api/v1/trades/my-buy',
+    data,
+  })
+}
+
+export const getMySellTrades = (data = {}) => {
+  return request({
+    path: '/api/v1/trades/my-sell',
+    data,
+  })
+}
+
+export const confirmTrade = (id) => {
+  return request({
+    path: `/api/v1/trades/${id}/confirm`,
+    method: 'PUT',
+  })
+}
+
+export const cancelTrade = (id) => {
+  return request({
+    path: `/api/v1/trades/${id}/cancel`,
+    method: 'PUT',
+  })
+}
+
+export const completeTrade = (id) => {
+  return request({
+    path: `/api/v1/trades/${id}/complete`,
+    method: 'PUT',
+  })
+}
