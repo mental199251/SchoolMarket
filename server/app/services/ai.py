@@ -171,10 +171,23 @@ def _request_ollama(method, path, payload=None):
         connection.close()
 
     if response.status < 200 or response.status >= 300:
+        upstream_message = ""
+        try:
+            error_payload = json.loads(raw)
+            if isinstance(error_payload, dict):
+                upstream_message = str(error_payload.get("error") or "").strip()
+        except json.JSONDecodeError:
+            pass
+
         if _is_cloud_model() and response.status in {401, 403}:
             raise AIUnavailable("Ollama Cloud 未登录或无权限，请在后端机器执行 ollama signin")
+        if response.status == 410:
+            message = upstream_message or "当前模型已被 Ollama Cloud 下线"
+            raise AIUnavailable(f"Ollama 模型已下线：{message}")
         if response.status == 404:
             raise AIUnavailable(f"Ollama 模型不可用，请确认模型 {current_app.config['OLLAMA_MODEL']} 可访问")
+        if upstream_message:
+            raise AIUnavailable(f"Ollama 返回异常：{upstream_message}")
         raise AIUnavailable(f"Ollama 返回异常状态：{response.status}")
 
     try:

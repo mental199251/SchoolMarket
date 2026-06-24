@@ -40,15 +40,22 @@ def serialize_category(category):
     }
 
 
-def list_categories(include_inactive=False):
+def ensure_default_categories():
     ensure_category_indexes()
+    if _collection().find_one({}) is None:
+        return upsert_default_categories()
+    return []
+
+
+def list_categories(include_inactive=False):
+    ensure_default_categories()
     query = {} if include_inactive else {"is_active": True}
     cursor = _collection().find(query).sort([("sort_order", ASCENDING), ("name", ASCENDING)])
     return [serialize_category(category) for category in cursor]
 
 
 def find_category_by_key(key):
-    ensure_category_indexes()
+    ensure_default_categories()
     return _collection().find_one({"key": key, "is_active": True})
 
 

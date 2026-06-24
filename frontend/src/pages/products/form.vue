@@ -28,8 +28,21 @@
       <text class="label">价格</text>
       <input v-model="priceText" class="input" type="digit" placeholder="例如：28.00" />
 
-      <text class="label">分类</text>
-      <picker :range="categoryNames" :value="categoryIndex" @change="onCategoryChange">
+      <view class="category-header">
+        <text class="label inline">分类</text>
+        <text v-if="categoryError" class="retry-link" @click="loadCategories">重新加载</text>
+      </view>
+      <view v-if="categoryLoading" class="select select-muted">正在加载分类...</view>
+      <view v-else-if="categoryError" class="select select-error" @click="loadCategories">
+        {{ categoryError }}
+      </view>
+      <picker
+        v-else
+        :disabled="categories.length === 0"
+        :range="categoryNames"
+        :value="categoryIndex"
+        @change="onCategoryChange"
+      >
         <view class="select">{{ selectedCategoryName }}</view>
       </picker>
 
@@ -104,6 +117,8 @@ export default {
       id: '',
       generatingDescription: false,
       generatingTitle: false,
+      categoryError: '',
+      categoryLoading: false,
       uploading: false,
       submitting: false,
       categories: [],
@@ -162,8 +177,24 @@ export default {
   methods: {
     assetUrl,
     async loadCategories() {
-      const data = await getCategories()
-      this.categories = data.items
+      this.categoryLoading = true
+      this.categoryError = ''
+      try {
+        const data = await getCategories({ showError: false })
+        this.categories = Array.isArray(data?.items) ? data.items : []
+        if (this.categories.length === 0) {
+          this.categoryError = '暂无可用分类，点击重试'
+          return
+        }
+        if (!this.form.category_key) {
+          this.form.category_key = this.categories[0].key
+        }
+      } catch (error) {
+        this.categories = []
+        this.categoryError = error.message || '分类加载失败，点击重试'
+      } finally {
+        this.categoryLoading = false
+      }
     },
     async loadProduct() {
       const product = await getProduct(this.id)
@@ -342,6 +373,19 @@ page {
   margin: 0;
 }
 
+.category-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 24rpx 0 12rpx;
+}
+
+.retry-link {
+  color: #2f7d6c;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
 .input,
 .select,
 .textarea {
@@ -358,6 +402,16 @@ page {
   height: 86rpx;
   padding: 0 22rpx;
   line-height: 86rpx;
+}
+
+.select-muted {
+  color: #75817c;
+}
+
+.select-error {
+  border-color: #efb2ad;
+  background: #fff5f4;
+  color: #a74740;
 }
 
 .textarea {

@@ -63,9 +63,10 @@ export const updateMe = (data) => {
   })
 }
 
-export const getCategories = () => {
+export const getCategories = (options = {}) => {
   return request({
     path: '/api/v1/categories',
+    ...options,
   })
 }
 

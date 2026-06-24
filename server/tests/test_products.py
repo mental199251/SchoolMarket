@@ -35,6 +35,24 @@ def create_product(client, token, **overrides):
     return client.post("/api/v1/products", json=payload, headers=auth_header(token))
 
 
+def test_categories_are_initialized_when_collection_is_empty(client, app):
+    with app.app_context():
+        assert app.extensions["mongo"].db.categories.count_documents({}) == 0
+
+    response = client.get("/api/v1/categories")
+    payload = response.get_json()
+
+    assert response.status_code == 200
+    assert {item["key"] for item in payload["data"]["items"]} == {
+        "books",
+        "electronics",
+        "daily",
+        "sports",
+    }
+    with app.app_context():
+        assert app.extensions["mongo"].db.categories.count_documents({}) == 4
+
+
 def test_categories_and_public_product_list(client, app):
     with app.app_context():
         upsert_default_categories()
