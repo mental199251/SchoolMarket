@@ -65,6 +65,12 @@
     "mp-toutiao" : {
         "usingComponents" : true
     },
+    "h5" : {
+        "title" : "校淘空间",
+        "router" : {
+            "mode" : "hash"
+        }
+    },
     "uniStatistics": {  
         "enable": false
     },

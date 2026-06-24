@@ -28,7 +28,7 @@
       <input v-model="form.campus" class="input" placeholder="例如：东校区" />
 
       <button class="primary-button" :loading="submitting" :disabled="submitting" @click="submit">
-        注册并登录
+        注册
       </button>
       <button class="secondary-button" @click="goLogin">已有账号，去登录</button>
     </view>
@@ -37,7 +37,11 @@
 
 <script>
 import { register } from '../../api'
-import { setAuthSession } from '../../utils/auth'
+import {
+  clearAuthStorage,
+  clearRememberedLogin,
+  saveRememberedLogin,
+} from '../../utils/auth'
 
 export default {
   data() {
@@ -61,13 +65,34 @@ export default {
 
       this.submitting = true
       try {
-        const session = await register(this.form)
-        setAuthSession(session)
-        uni.showToast({ title: '注册成功', icon: 'success' })
-        uni.redirectTo({ url: '/pages/profile/profile' })
+        const credentials = {
+          username: this.form.username,
+          password: this.form.password,
+        }
+        await register(this.form)
+        clearAuthStorage()
+        const shouldSave = await this.confirmSavePassword()
+        if (shouldSave) {
+          saveRememberedLogin(credentials)
+        } else {
+          clearRememberedLogin()
+        }
+        uni.redirectTo({ url: '/pages/auth/login' })
       } finally {
         this.submitting = false
       }
+    },
+    confirmSavePassword() {
+      return new Promise((resolve) => {
+        uni.showModal({
+          title: '注册成功',
+          content: '是否把账号和密码保存在本地？保存后返回登录页会自动填充，密码默认隐藏。',
+          confirmText: '保存',
+          cancelText: '不保存',
+          success: (result) => resolve(Boolean(result.confirm)),
+          fail: () => resolve(false),
+        })
+      })
     },
     goLogin() {
       uni.redirectTo({ url: '/pages/auth/login' })

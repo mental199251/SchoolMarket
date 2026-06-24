@@ -20,6 +20,12 @@
 			}
 		},
 		{
+			"path": "pages/info/center",
+			"style": {
+				"navigationBarTitleText": "校淘服务"
+			}
+		},
+		{
 			"path": "pages/profile/profile",
 			"style": {
 				"navigationBarTitleText": "个人中心"

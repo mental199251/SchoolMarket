@@ -31,6 +31,7 @@ button,
 input,
 textarea,
 picker,
+.page,
 .select,
 .product-card,
 .trade-card,
@@ -48,11 +49,13 @@ picker,
 }
 
 .page {
+  box-sizing: border-box !important;
   width: 100% !important;
   max-width: 980px !important;
   min-height: 100vh !important;
   margin: 0 auto !important;
   padding: 44rpx 28rpx 92rpx !important;
+  overflow-x: hidden !important;
   color: #20352f !important;
   background:
     radial-gradient(circle at 12% 4%, rgba(255, 219, 190, 0.76) 0, rgba(255, 219, 190, 0) 250rpx),

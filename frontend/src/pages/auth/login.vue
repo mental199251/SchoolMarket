@@ -2,21 +2,33 @@
   <view class="page">
     <view class="header">
       <text class="eyebrow">WELCOME BACK</text>
-      <text class="title">欢迎回来</text>
-      <text class="subtitle">继续你的校园好物流转，消息、商品和交易都会在这里等你。</text>
+      <text class="title">登录校淘空间</text>
+      <text class="subtitle">登录后直接进入首页，浏览、发布、交易和消息都会保持同步。</text>
     </view>
 
     <view class="form-card">
       <text class="label">账号</text>
       <input v-model="form.username" class="input" placeholder="请输入账号" />
 
-      <text class="label">密码</text>
+      <view class="label-row">
+        <text class="label inline">密码</text>
+        <text class="toggle-password" @click="showPassword = !showPassword">
+          {{ showPassword ? '隐藏密码' : '显示密码' }}
+        </text>
+      </view>
       <input
         v-model="form.password"
         class="input"
-        type="password"
+        :password="!showPassword"
         placeholder="请输入密码"
       />
+
+      <view class="remember-row" @click="rememberPassword = !rememberPassword">
+        <view :class="['check-box', { checked: rememberPassword }]">
+          <text v-if="rememberPassword">✓</text>
+        </view>
+        <text class="remember-text">保存账号和密码到本地，下次自动填充</text>
+      </view>
 
       <button class="primary-button" :loading="submitting" :disabled="submitting" @click="submit">
         登录
@@ -28,16 +40,36 @@
 
 <script>
 import { login } from '../../api'
-import { setAuthSession } from '../../utils/auth'
+import {
+  clearRememberedLogin,
+  getRememberedLogin,
+  hasValidAuth,
+  saveRememberedLogin,
+  setAuthSession,
+} from '../../utils/auth'
 
 export default {
   data() {
     return {
+      rememberPassword: true,
+      showPassword: false,
       submitting: false,
       form: {
         username: '',
         password: '',
       },
+    }
+  },
+  onLoad() {
+    if (hasValidAuth()) {
+      uni.reLaunch({ url: '/pages/index/index' })
+      return
+    }
+    const remembered = getRememberedLogin()
+    if (remembered.remember) {
+      this.form.username = remembered.username || ''
+      this.form.password = remembered.password || ''
+      this.rememberPassword = true
     }
   },
   methods: {
@@ -51,8 +83,16 @@ export default {
       try {
         const session = await login(this.form)
         setAuthSession(session)
+        if (this.rememberPassword) {
+          saveRememberedLogin({
+            username: this.form.username,
+            password: this.form.password,
+          })
+        } else {
+          clearRememberedLogin()
+        }
         uni.showToast({ title: '登录成功', icon: 'success' })
-        uni.redirectTo({ url: '/pages/profile/profile' })
+        uni.reLaunch({ url: '/pages/index/index' })
       } finally {
         this.submitting = false
       }
@@ -114,6 +154,23 @@ page {
   margin-top: 0;
 }
 
+.label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 24rpx 0 12rpx;
+}
+
+.label.inline {
+  margin: 0;
+}
+
+.toggle-password {
+  color: #ff5a1f;
+  font-size: 24rpx;
+  font-weight: 700;
+}
+
 .input {
   height: 88rpx;
   box-sizing: border-box;
@@ -124,6 +181,42 @@ page {
   font-size: 29rpx;
 }
 
+.remember-row {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  margin-top: 22rpx;
+}
+
+.check-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34rpx;
+  height: 34rpx;
+  border: 2rpx solid #d4ddd9;
+  border-radius: 8rpx;
+  background: #fff;
+  color: #fff;
+  font-size: 24rpx;
+  font-weight: 900;
+  line-height: 1;
+  box-sizing: border-box;
+}
+
+.check-box.checked {
+  border-color: #ff5a1f;
+  background: #ff5a1f;
+}
+
+.remember-text {
+  flex: 1;
+  min-width: 0;
+  color: #69736f;
+  font-size: 24rpx;
+  line-height: 1.35;
+}
+
 .primary-button,
 .secondary-button {
   margin-top: 28rpx;
@@ -132,7 +225,7 @@ page {
 }
 
 .primary-button {
-  background: #173f36;
+  background: linear-gradient(135deg, #ff4f28, #ff8d34);
   color: #fff;
 }
 

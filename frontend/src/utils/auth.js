@@ -1,4 +1,5 @@
 const AUTH_STORAGE_KEYS = ['auth_token', 'auth_user', 'auth_expires_at']
+const REMEMBER_LOGIN_KEY = 'remember_login_credentials'
 
 export const clearAuthStorage = () => {
   AUTH_STORAGE_KEYS.forEach((key) => uni.removeStorageSync(key))
@@ -25,4 +26,24 @@ export const hasValidAuth = () => {
   const expiresAt = getStoredExpiresAt()
   if (!token || !expiresAt) return false
   return new Date(expiresAt).getTime() > Date.now()
+}
+
+export const getRememberedLogin = () => {
+  return uni.getStorageSync(REMEMBER_LOGIN_KEY) || {
+    remember: false,
+    username: '',
+    password: '',
+  }
+}
+
+export const saveRememberedLogin = ({ username, password }) => {
+  uni.setStorageSync(REMEMBER_LOGIN_KEY, {
+    remember: true,
+    username,
+    password,
+  })
+}
+
+export const clearRememberedLogin = () => {
+  uni.removeStorageSync(REMEMBER_LOGIN_KEY)
 }
