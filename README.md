@@ -14,6 +14,7 @@
 - M7：Ollama 商品标题和描述建议、AI 调用日志和失败降级
 - M8：系统回归测试、重复操作保护、备份脚本和答辩交付文档
 - V2：前端 UI 重构，提供可爱、轻盈、灵动的 H5/微信小程序视觉体验
+- V3：真实演示数据入库，覆盖用户、商家、商品图片、交易、消息、公告和 AI 日志
 
 ## 环境要求
 
@@ -65,6 +66,14 @@ python scripts/seed_users.py
 cd server
 source .venv/bin/activate
 python scripts/seed_data.py
+```
+
+初始化 V3 真实演示数据和商品图片：
+
+```bash
+cd server
+source .venv/bin/activate
+python scripts/seed_v3_demo.py
 ```
 
 默认账号：
@@ -147,4 +156,5 @@ npm run build:mp-weixin
 - [M8 测试报告](docs/m8-test-report.md)
 - [答辩演示脚本](docs/demo-script.md)
 - [V2 UI 设计说明](docs/v2-ui-design.md)
+- [V3 演示数据说明](docs/v3-demo-data.md)
 - [完整开发计划](docs/development-plan.md)
