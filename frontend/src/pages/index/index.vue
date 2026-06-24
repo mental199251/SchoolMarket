@@ -1,9 +1,21 @@
 <template>
   <view class="page">
     <view class="hero">
-      <text class="eyebrow">SCHOOL MARKET</text>
-      <text class="title">校淘空间</text>
-      <text class="subtitle">校园二手好物流转</text>
+      <view class="hero-copy">
+        <text class="eyebrow">SCHOOL MARKET V2</text>
+        <text class="title">校淘空间</text>
+        <text class="subtitle">把闲置变成下一位同学的小确幸。浏览、发布、沟通、交易，都轻轻松松。</text>
+      </view>
+      <view class="hero-orbit">
+        <view class="orbit-card card-a">
+          <text class="orbit-label">今日好物</text>
+          <text class="orbit-value">{{ products.length }}</text>
+        </view>
+        <view class="orbit-card card-b">
+          <text class="orbit-label">公告</text>
+          <text class="orbit-value">{{ announcements.length }}</text>
+        </view>
+      </view>
     </view>
 
     <view class="status-card">
@@ -14,9 +26,12 @@
       <view :class="['status-dot', `dot-${overallState}`]"></view>
     </view>
 
+    <view class="primary-actions">
+      <button class="quick-button primary" @click="goProducts">去逛校园好物</button>
+      <button class="quick-button publish" @click="goPublish">发布我的闲置</button>
+    </view>
+
     <view class="quick-grid">
-      <button class="quick-button primary" @click="goProducts">浏览商品</button>
-      <button class="quick-button" @click="goPublish">发布商品</button>
       <button class="quick-button" @click="goMyProducts">我的商品</button>
       <button class="quick-button" @click="goMessages">消息中心</button>
       <button class="quick-button" @click="goBuyTrades">我的购买</button>
@@ -27,7 +42,7 @@
     </view>
 
     <view v-if="isAdmin" class="admin-panel">
-      <text class="panel-title">后台管理</text>
+      <text class="panel-title">后台控制台</text>
       <view class="admin-grid">
         <button class="admin-button" @click="goAdminUsers">用户</button>
         <button class="admin-button" @click="goAdminProducts">商品</button>
@@ -38,7 +53,10 @@
     </view>
 
     <view class="section-heading">
-      <text class="section-title">公告</text>
+      <view>
+        <text class="section-title">校园公告</text>
+        <text class="section-subtitle">重要提醒会在这里轻轻冒泡</text>
+      </view>
       <text class="section-link" @click="loadAnnouncements">刷新</text>
     </view>
 
@@ -50,14 +68,17 @@
     </view>
 
     <view class="section-heading">
-      <text class="section-title">最新商品</text>
+      <view>
+        <text class="section-title">刚刚上新</text>
+        <text class="section-subtitle">同学们正在转让的宝藏</text>
+      </view>
       <text class="section-link" @click="goProducts">查看全部</text>
     </view>
 
     <view v-if="loadingProducts" class="empty">正在加载商品</view>
     <view v-else-if="products.length === 0" class="empty">暂无商品</view>
 
-    <view v-for="product in products" :key="product.id" class="product-card" @click="goDetail(product.id)">
+    <view v-for="product in products" :key="product.id" class="product-card home-product" @click="goDetail(product.id)">
       <image
         v-if="product.images && product.images.length"
         class="product-image"
@@ -231,212 +252,151 @@ export default {
 </script>
 
 <style>
-page {
-  background: #f2f5f3;
-}
-
-.page {
-  min-height: 100vh;
-  box-sizing: border-box;
-  padding: 48rpx 28rpx 64rpx;
-  color: #17221e;
-}
-
 .hero {
+  min-height: 360rpx;
+  display: flex;
+  justify-content: space-between;
+  gap: 24rpx;
+}
+
+.hero-copy {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+}
+
+.hero .title {
+  margin-top: 12rpx;
+  font-size: 68rpx !important;
+}
+
+.hero .subtitle {
+  max-width: 560rpx;
+}
+
+.hero-orbit {
+  position: relative;
+  z-index: 1;
+  width: 224rpx;
+  min-height: 220rpx;
+}
+
+.orbit-card {
+  position: absolute;
   display: flex;
   flex-direction: column;
-  margin-bottom: 28rpx;
+  justify-content: center;
+  width: 156rpx;
+  height: 156rpx;
+  padding: 20rpx;
+  border: 3rpx solid rgba(255, 255, 255, 0.82);
+  border-radius: 44rpx;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(224, 255, 245, 0.88));
+  box-shadow: 0 22rpx 40rpx rgba(53, 125, 109, 0.16), inset 0 -10rpx 18rpx rgba(95, 205, 176, 0.13);
 }
 
-.eyebrow {
-  margin-bottom: 10rpx;
-  color: #367c6c;
+.card-a {
+  right: 34rpx;
+  top: 8rpx;
+  animation: home-orbit-a 5.8s ease-in-out infinite alternate;
+}
+
+.card-b {
+  right: 0;
+  bottom: 8rpx;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(255, 238, 214, 0.9));
+  animation: home-orbit-b 6.2s ease-in-out infinite alternate;
+}
+
+.orbit-label {
+  color: #5f766f;
   font-size: 22rpx;
-  font-weight: 700;
+  font-weight: 800;
 }
 
-.title {
-  font-size: 58rpx;
-  font-weight: 700;
-  line-height: 1.25;
-}
-
-.subtitle {
-  margin-top: 10rpx;
-  color: #66736e;
-  font-size: 28rpx;
-}
-
-.status-card,
-.section-heading,
-.product-card {
-  display: flex;
-  align-items: center;
-}
-
-.status-card,
-.product-card,
-.announcement-card,
-.admin-panel {
-  border: 1rpx solid #e3e9e6;
-  border-radius: 22rpx;
-  background: #fff;
+.orbit-value {
+  margin-top: 6rpx;
+  color: #183b34;
+  font-size: 48rpx;
+  font-weight: 950;
 }
 
 .status-card {
+  display: flex;
+  align-items: center;
   justify-content: space-between;
-  padding: 26rpx;
-}
-
-.status-label {
-  display: block;
-  color: #75817c;
-  font-size: 24rpx;
 }
 
 .status-value {
   display: block;
-  margin-top: 6rpx;
-  font-size: 34rpx;
-  font-weight: 700;
+  margin-top: 8rpx;
+  font-size: 36rpx;
+  font-weight: 950;
 }
 
 .status-dot {
-  width: 24rpx;
-  height: 24rpx;
+  width: 28rpx;
+  height: 28rpx;
   border-radius: 50%;
   background: #a9b3af;
+  box-shadow: 0 0 0 10rpx rgba(169, 179, 175, 0.14);
 }
 
 .dot-success {
-  background: #63d6a5;
+  background: #30c990;
+  box-shadow: 0 0 0 10rpx rgba(48, 201, 144, 0.16);
 }
 
 .dot-warning {
-  background: #f4bd63;
+  background: #f2ac4f;
+  box-shadow: 0 0 0 10rpx rgba(242, 172, 79, 0.16);
 }
 
 .dot-error {
-  background: #ef786f;
+  background: #eb5d72;
+  box-shadow: 0 0 0 10rpx rgba(235, 93, 114, 0.16);
 }
 
 .dot-checking {
-  background: #77b9ff;
+  background: #5caef5;
+  box-shadow: 0 0 0 10rpx rgba(92, 174, 245, 0.16);
 }
 
-.quick-grid {
+.primary-actions {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16rpx;
-  margin-top: 22rpx;
+  grid-template-columns: 1.25fr 1fr;
+  gap: 18rpx;
+  margin: 24rpx 0 18rpx;
 }
 
-.quick-button {
-  border-radius: 18rpx;
-  background: #fff;
-  color: #24594e;
-  font-size: 28rpx;
-}
-
-.quick-button.primary {
-  background: #173f36;
-  color: #fff;
+.quick-button.publish {
+  background: linear-gradient(135deg, #fff3dc 0%, #ffd6aa 100%) !important;
+  color: #8a471b !important;
 }
 
 .admin-panel {
   margin-top: 22rpx;
-  padding: 22rpx;
 }
 
-.panel-title {
+.section-subtitle {
   display: block;
-  margin-bottom: 16rpx;
-  color: #17221e;
-  font-size: 28rpx;
-  font-weight: 700;
+  margin-top: 8rpx;
+  color: #6a8078;
+  font-size: 23rpx;
+  line-height: 1.4;
 }
 
-.admin-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12rpx;
-}
-
-.admin-button {
-  min-width: 0;
-  border-radius: 16rpx;
-  background: #eef4f1;
-  color: #24594e;
-  font-size: 25rpx;
-}
-
-.section-heading {
-  justify-content: space-between;
-  margin: 42rpx 4rpx 18rpx;
-}
-
-.section-title {
-  font-size: 31rpx;
-  font-weight: 700;
-}
-
-.section-link {
-  color: #367c6c;
-  font-size: 25rpx;
-}
-
-.empty {
-  padding: 80rpx 0;
-  color: #75817c;
-  font-size: 28rpx;
-  text-align: center;
-}
-
-.empty.compact {
-  padding: 32rpx 0;
-}
-
-.announcement-card {
-  margin-bottom: 16rpx;
-  padding: 22rpx;
-}
-
-.announcement-title {
-  display: block;
-  font-size: 29rpx;
-  font-weight: 700;
-  line-height: 1.35;
-}
-
-.announcement-content {
-  display: block;
-  margin-top: 10rpx;
-  color: #66736e;
-  font-size: 25rpx;
-  line-height: 1.5;
-}
-
-.product-card {
-  margin-bottom: 18rpx;
-  padding: 20rpx;
+.home-product {
+  display: flex;
+  align-items: center;
 }
 
 .product-image,
 .image-placeholder {
-  width: 128rpx;
-  height: 128rpx;
-  margin-right: 18rpx;
-  border-radius: 18rpx;
-}
-
-.image-placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #ddf5eb;
-  color: #25715f;
-  font-size: 42rpx;
-  font-weight: 700;
+  width: 136rpx;
+  height: 136rpx;
+  margin-right: 20rpx;
+  flex-shrink: 0;
 }
 
 .product-main {
@@ -446,22 +406,50 @@ page {
   flex-direction: column;
 }
 
-.product-title {
-  font-size: 30rpx;
-  font-weight: 700;
-  line-height: 1.35;
-}
-
-.product-meta {
-  margin-top: 8rpx;
-  color: #75817c;
-  font-size: 24rpx;
-}
-
 .price {
-  margin-left: 12rpx;
-  color: #b6533d;
-  font-size: 30rpx;
-  font-weight: 700;
+  margin-left: 14rpx;
+  font-size: 32rpx;
+}
+
+@keyframes home-orbit-a {
+  from {
+    transform: translateY(0) rotate(-2deg);
+  }
+  to {
+    transform: translateY(18rpx) rotate(2deg);
+  }
+}
+
+@keyframes home-orbit-b {
+  from {
+    transform: translateY(12rpx) rotate(2deg);
+  }
+  to {
+    transform: translateY(-8rpx) rotate(-2deg);
+  }
+}
+
+@media screen and (max-width: 420px) {
+  .hero {
+    flex-direction: column;
+  }
+
+  .hero-orbit {
+    width: 100%;
+    min-height: 180rpx;
+  }
+
+  .card-a {
+    left: 0;
+    right: auto;
+  }
+
+  .card-b {
+    right: 26rpx;
+  }
+
+  .primary-actions {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

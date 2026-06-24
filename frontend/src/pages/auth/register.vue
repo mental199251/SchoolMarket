@@ -1,8 +1,9 @@
 <template>
   <view class="page">
     <view class="header">
+      <text class="eyebrow">JOIN SCHOOL MARKET</text>
       <text class="title">创建账号</text>
-      <text class="subtitle">账号只用于校园二手交易身份识别，买家和卖家不拆分角色。</text>
+      <text class="subtitle">用一个轻量身份开启校园二手交易，买家和卖家身份随时切换。</text>
     </view>
 
     <view class="form-card">
@@ -150,5 +151,21 @@ page {
 .secondary-button {
   background: #eef4f1;
   color: #24594e;
+}
+
+.form-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.form-card::before {
+  content: "";
+  position: absolute;
+  right: -40rpx;
+  top: -40rpx;
+  width: 180rpx;
+  height: 180rpx;
+  border-radius: 999rpx;
+  background: rgba(141, 221, 240, 0.24);
 }
 </style>

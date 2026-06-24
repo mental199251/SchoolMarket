@@ -123,7 +123,7 @@
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "校淘空间",
-		"navigationBarBackgroundColor": "#F2F5F3",
-		"backgroundColor": "#F2F5F3"
+		"navigationBarBackgroundColor": "#FFF8EC",
+		"backgroundColor": "#F1FBF6"
 	}
 }

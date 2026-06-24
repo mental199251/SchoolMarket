@@ -13,6 +13,7 @@
 - M6：管理端概览、热门分类和活跃用户统计报表
 - M7：Ollama 商品标题和描述建议、AI 调用日志和失败降级
 - M8：系统回归测试、重复操作保护、备份脚本和答辩交付文档
+- V2：前端 UI 重构，提供可爱、轻盈、灵动的 H5/微信小程序视觉体验
 
 ## 环境要求
 
@@ -145,4 +146,5 @@ npm run build:mp-weixin
 - [测试计划](docs/test-plan.md)
 - [M8 测试报告](docs/m8-test-report.md)
 - [答辩演示脚本](docs/demo-script.md)
+- [V2 UI 设计说明](docs/v2-ui-design.md)
 - [完整开发计划](docs/development-plan.md)

@@ -2,6 +2,7 @@
   <view class="page">
     <view class="header">
       <text class="title">{{ isEdit ? '编辑商品' : '发布商品' }}</text>
+      <text class="subtitle">让闲置拥有更漂亮的新旅程。AI 可以帮你生成标题和描述。</text>
     </view>
 
     <view class="form-card">
@@ -471,5 +472,89 @@ page {
   background: #173f36;
   color: #fff;
   font-size: 29rpx;
+}
+
+.form-card {
+  position: relative;
+}
+
+.form-card::before {
+  content: "";
+  position: absolute;
+  right: -34rpx;
+  top: -30rpx;
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 999rpx;
+  background: rgba(141, 221, 240, 0.24);
+}
+
+.field-header,
+.image-header {
+  position: relative;
+  z-index: 1;
+  padding: 14rpx 0 8rpx;
+}
+
+.small-button {
+  width: auto !important;
+  min-width: 150rpx !important;
+  padding: 0 22rpx !important;
+}
+
+.suggestion-list {
+  position: relative;
+  z-index: 1;
+}
+
+.suggestion-item {
+  padding: 18rpx !important;
+}
+
+.suggestion-item.description {
+  align-items: flex-start;
+}
+
+.apply-button {
+  width: 112rpx !important;
+  flex-shrink: 0;
+}
+
+.image-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.image-item,
+.preview,
+.image-empty {
+  min-height: 166rpx;
+  border-radius: 26rpx;
+}
+
+.image-empty {
+  border: 2rpx dashed rgba(24, 165, 138, 0.22);
+  background: rgba(255, 255, 255, 0.58);
+}
+
+.remove-button {
+  min-height: 44rpx !important;
+  line-height: 44rpx !important;
+  background: rgba(171, 39, 66, 0.92) !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+
+@media screen and (min-width: 760px) {
+  .form-card {
+    padding: 36rpx !important;
+  }
+
+  .image-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .image-empty {
+    grid-column: span 4;
+  }
 }
 </style>

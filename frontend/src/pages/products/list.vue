@@ -2,34 +2,38 @@
   <view class="page">
     <view class="header">
       <text class="eyebrow">MARKET</text>
-      <text class="title">商品列表</text>
+      <text class="title">发现好物</text>
+      <text class="subtitle">从教材到数码配件，校园里的小惊喜都在这里。</text>
       <view class="header-actions">
         <button class="icon-button" @click="goPublish">发布</button>
         <button class="icon-button ghost" @click="goMyProducts">我的</button>
       </view>
     </view>
 
-    <view class="search-row">
-      <input v-model="filters.keyword" class="search-input" placeholder="搜索教材、耳机、球拍" />
-      <button class="search-button" :disabled="loading" @click="applyFilters">搜索</button>
-    </view>
+    <view class="filter-shell">
+      <view class="search-row">
+        <input v-model="filters.keyword" class="search-input" placeholder="搜索教材、耳机、球拍" />
+        <button class="search-button" :disabled="loading" @click="applyFilters">搜索</button>
+      </view>
 
-    <view class="filter-grid">
-      <picker :range="categoryNames" :value="categoryIndex" @change="onCategoryChange">
-        <view class="select">{{ selectedCategoryName }}</view>
-      </picker>
-      <picker :range="conditionNames" :value="conditionIndex" @change="onConditionChange">
-        <view class="select">{{ selectedConditionName }}</view>
-      </picker>
-      <picker :range="sortNames" :value="sortIndex" @change="onSortChange">
-        <view class="select wide">{{ selectedSortName }}</view>
-      </picker>
+      <view class="filter-grid">
+        <picker :range="categoryNames" :value="categoryIndex" @change="onCategoryChange">
+          <view class="select">{{ selectedCategoryName }}</view>
+        </picker>
+        <picker :range="conditionNames" :value="conditionIndex" @change="onConditionChange">
+          <view class="select">{{ selectedConditionName }}</view>
+        </picker>
+        <picker :range="sortNames" :value="sortIndex" @change="onSortChange">
+          <view class="select wide">{{ selectedSortName }}</view>
+        </picker>
+      </view>
     </view>
 
     <view v-if="loading && products.length === 0" class="empty">正在加载商品</view>
     <view v-else-if="products.length === 0" class="empty">暂无符合条件的商品</view>
 
-    <view v-for="product in products" :key="product.id" class="product-card" @click="goDetail(product.id)">
+    <view class="product-grid">
+      <view v-for="product in products" :key="product.id" class="product-card" @click="goDetail(product.id)">
       <image
         v-if="product.images && product.images.length"
         class="product-image"
@@ -45,6 +49,7 @@
         <text class="seller">{{ product.owner?.nickname || product.owner?.username || '匿名用户' }}</text>
       </view>
       <text class="price">{{ formatPrice(product.price_cents) }}</text>
+      </view>
     </view>
 
     <button
@@ -183,141 +188,48 @@ export default {
 </script>
 
 <style>
-page {
-  background: #f2f5f3;
-}
-
-.page {
-  min-height: 100vh;
-  box-sizing: border-box;
-  padding: 42rpx 28rpx 64rpx;
-  color: #17221e;
-}
-
-.header {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 28rpx;
-}
-
-.eyebrow {
-  margin-bottom: 8rpx;
-  color: #367c6c;
-  font-size: 22rpx;
-  font-weight: 700;
-}
-
-.title {
-  font-size: 50rpx;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.header-actions,
-.search-row,
-.filter-grid,
-.product-card {
-  display: flex;
-  align-items: center;
-}
-
 .header-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16rpx;
   margin-top: 24rpx;
 }
 
-.icon-button {
-  flex: 1;
-  border-radius: 18rpx;
-  background: #173f36;
-  color: #fff;
-  font-size: 28rpx;
-}
-
-.icon-button.ghost {
-  background: #fff;
-  color: #24594e;
-}
-
-.search-row {
-  gap: 16rpx;
-  margin-bottom: 18rpx;
-}
-
-.search-input {
-  flex: 1;
-  height: 82rpx;
-  box-sizing: border-box;
-  padding: 0 22rpx;
-  border: 1rpx solid #dbe3df;
-  border-radius: 18rpx;
-  background: #fff;
-  font-size: 28rpx;
-}
-
-.search-button {
-  width: 150rpx;
-  border-radius: 18rpx;
-  background: #24594e;
-  color: #fff;
-  font-size: 27rpx;
+.filter-shell {
+  margin-bottom: 24rpx;
+  padding: 22rpx;
+  border: 2rpx solid rgba(255, 255, 255, 0.78);
+  border-radius: 34rpx;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 18rpx 42rpx rgba(77, 130, 120, 0.12);
 }
 
 .filter-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14rpx;
-  margin-bottom: 24rpx;
-}
-
-.select {
-  height: 72rpx;
-  box-sizing: border-box;
-  padding: 0 18rpx;
-  border: 1rpx solid #dbe3df;
-  border-radius: 16rpx;
-  background: #fff;
-  color: #43504b;
-  font-size: 25rpx;
-  line-height: 72rpx;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .select.wide {
   grid-column: span 2;
 }
 
-.empty {
-  padding: 80rpx 0;
-  color: #75817c;
-  font-size: 28rpx;
-  text-align: center;
+.product-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18rpx;
 }
 
 .product-card {
-  position: relative;
-  margin-bottom: 18rpx;
-  padding: 20rpx;
-  border: 1rpx solid #e3e9e6;
-  border-radius: 22rpx;
-  background: #fff;
+  display: flex;
+  align-items: center;
+  min-height: 180rpx;
 }
 
 .product-image,
 .image-placeholder {
-  width: 140rpx;
-  height: 140rpx;
-  margin-right: 20rpx;
-  border-radius: 18rpx;
-}
-
-.image-placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #ddf5eb;
-  color: #25715f;
-  font-size: 46rpx;
-  font-weight: 700;
+  width: 148rpx;
+  height: 148rpx;
+  margin-right: 22rpx;
+  flex-shrink: 0;
 }
 
 .product-main {
@@ -327,33 +239,41 @@ page {
   flex-direction: column;
 }
 
-.product-title {
-  color: #17221e;
-  font-size: 31rpx;
-  font-weight: 700;
-  line-height: 1.35;
-}
-
-.product-meta,
 .seller {
   margin-top: 8rpx;
-  color: #75817c;
-  font-size: 24rpx;
 }
 
 .price {
   align-self: flex-start;
-  margin-left: 14rpx;
-  color: #b6533d;
-  font-size: 30rpx;
-  font-weight: 700;
+  margin-left: 16rpx;
+  font-size: 31rpx;
 }
 
 .load-more {
-  margin-top: 20rpx;
-  border-radius: 18rpx;
-  background: #fff;
-  color: #24594e;
-  font-size: 28rpx;
+  width: 100%;
+  margin-top: 24rpx;
+}
+
+@media screen and (min-width: 760px) {
+  .product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .product-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .product-image,
+  .image-placeholder {
+    width: 100%;
+    height: 280rpx;
+    margin-right: 0;
+    margin-bottom: 18rpx;
+  }
+
+  .price {
+    margin: 18rpx 0 0;
+  }
 }
 </style>

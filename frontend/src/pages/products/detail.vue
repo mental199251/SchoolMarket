@@ -203,30 +203,18 @@ export default {
 </script>
 
 <style>
-page {
-  background: #f2f5f3;
-}
-
-.page {
-  min-height: 100vh;
-  box-sizing: border-box;
-  padding: 28rpx 28rpx 64rpx;
-  color: #17221e;
-}
-
-.empty {
-  padding: 120rpx 0;
-  color: #75817c;
-  font-size: 28rpx;
-  text-align: center;
-}
-
 .image-swiper,
 .hero-placeholder {
-  width: 100%;
-  height: 520rpx;
-  border-radius: 24rpx;
+  position: relative;
   overflow: hidden;
+  width: 100%;
+  height: 560rpx;
+  margin-bottom: 28rpx;
+  border-radius: 48rpx !important;
+}
+
+.image-swiper {
+  box-shadow: 0 30rpx 70rpx rgba(52, 115, 101, 0.18);
 }
 
 .hero-image {
@@ -238,85 +226,54 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #ddf5eb;
-  color: #25715f;
-  font-size: 58rpx;
-  font-weight: 700;
+  font-size: 68rpx;
+  font-weight: 950;
 }
 
 .title-row {
   display: flex;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 24rpx;
-  margin-top: 30rpx;
+  margin-top: 8rpx;
+  padding: 28rpx;
+  border: 2rpx solid rgba(255, 255, 255, 0.78);
+  border-radius: 38rpx;
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 20rpx 42rpx rgba(77, 130, 120, 0.12);
 }
 
-.title {
+.title-row .title {
   flex: 1;
-  font-size: 42rpx;
-  font-weight: 700;
-  line-height: 1.35;
+  font-size: 42rpx !important;
+  line-height: 1.28 !important;
 }
 
-.price {
-  color: #b6533d;
+.title-row .price {
+  flex-shrink: 0;
   font-size: 40rpx;
-  font-weight: 700;
+  line-height: 1.2;
 }
 
 .tag-row {
   display: flex;
   flex-wrap: wrap;
   gap: 14rpx;
-  margin-top: 20rpx;
-}
-
-.tag {
-  padding: 10rpx 16rpx;
-  border-radius: 999rpx;
-  background: #fff;
-  color: #43504b;
-  font-size: 23rpx;
-}
-
-.status-off_shelf {
-  background: #fff3d9;
-  color: #94651e;
-}
-
-.status-sold {
-  background: #fde6e3;
-  color: #a74740;
-}
-
-.seller-row,
-.section,
-.owner-actions,
-.buyer-actions {
-  margin-top: 26rpx;
-  padding: 28rpx;
-  border: 1rpx solid #e3e9e6;
-  border-radius: 22rpx;
-  background: #fff;
+  margin: 22rpx 0 4rpx;
 }
 
 .seller-row {
   display: flex;
   align-items: center;
+  margin-top: 24rpx !important;
 }
 
 .avatar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 82rpx;
-  height: 82rpx;
+  width: 90rpx;
+  height: 90rpx;
   margin-right: 22rpx;
-  border-radius: 24rpx;
-  background: #173f36;
-  color: #fff;
+  flex-shrink: 0;
   font-size: 34rpx;
-  font-weight: 700;
 }
 
 .seller-main,
@@ -325,51 +282,45 @@ page {
   flex-direction: column;
 }
 
-.seller-name {
-  font-size: 30rpx;
-  font-weight: 700;
-}
-
-.seller-campus {
-  margin-top: 6rpx;
-  color: #75817c;
-  font-size: 24rpx;
+.section {
+  margin-top: 24rpx !important;
 }
 
 .section-title {
   margin-bottom: 14rpx;
-  font-size: 28rpx;
-  font-weight: 700;
 }
 
 .description {
-  color: #43504b;
-  font-size: 27rpx;
-  line-height: 1.65;
   white-space: pre-wrap;
 }
 
-.primary-button,
-.secondary-button,
-.danger-button {
-  margin-top: 18rpx;
-  border-radius: 18rpx;
-  font-size: 28rpx;
+.owner-actions,
+.buyer-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16rpx;
+  margin-top: 26rpx;
+  padding: 26rpx;
+  border: 2rpx solid rgba(255, 255, 255, 0.8);
+  border-radius: 34rpx;
+  background: rgba(255, 255, 255, 0.76);
+  box-shadow: 0 22rpx 52rpx rgba(77, 130, 120, 0.12);
 }
 
-.primary-button {
-  margin-top: 0;
-  background: #173f36;
-  color: #fff;
+.owner-actions button,
+.buyer-actions button {
+  margin-top: 0 !important;
 }
 
-.secondary-button {
-  background: #eef4f1;
-  color: #24594e;
-}
+@media screen and (min-width: 760px) {
+  .image-swiper,
+  .hero-placeholder {
+    height: 660rpx;
+  }
 
-.danger-button {
-  background: #fff;
-  color: #a74740;
+  .owner-actions,
+  .buyer-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 </style>

@@ -1,8 +1,9 @@
 <template>
   <view class="page">
     <view class="header">
+      <text class="eyebrow">WELCOME BACK</text>
       <text class="title">欢迎回来</text>
-      <text class="subtitle">登录后可以维护资料，并继续后续商品和交易流程。</text>
+      <text class="subtitle">继续你的校园好物流转，消息、商品和交易都会在这里等你。</text>
     </view>
 
     <view class="form-card">
@@ -138,5 +139,21 @@ page {
 .secondary-button {
   background: #eef4f1;
   color: #24594e;
+}
+
+.form-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.form-card::before {
+  content: "";
+  position: absolute;
+  right: -40rpx;
+  top: -40rpx;
+  width: 180rpx;
+  height: 180rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 205, 162, 0.24);
 }
 </style>
