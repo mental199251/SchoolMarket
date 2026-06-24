@@ -41,6 +41,8 @@ python -m pip install -r requirements.txt
 
 ## 启动后端
 
+真实 MongoDB 持久化运行：
+
 ```bash
 cd server
 source .venv/bin/activate
@@ -51,6 +53,16 @@ python run.py
 
 - `GET /health`：仅检查 Flask 服务
 - `GET /ready`：检查 Flask 和 MongoDB
+
+如果本机暂时没有安装或启动 MongoDB，但想马上打开网页看到 V3 商品、公告和图片，可以运行内存演示后端：
+
+```bash
+cd server
+source .venv/bin/activate
+python scripts/run_v3_memory_demo.py
+```
+
+这个模式会读取 `server/fixtures/v3_demo_data.json` 并生成商品图片到 `server/uploads/images/`，但数据只存在当前 Python 进程内；关闭后端后需要重新运行脚本。
 
 初始化 M2 演示账号：
 
@@ -68,7 +80,7 @@ source .venv/bin/activate
 python scripts/seed_data.py
 ```
 
-初始化 V3 真实演示数据和商品图片。演示数据文件已提交在 `server/fixtures/v3_demo_data.json`：
+初始化 V3 真实演示数据和商品图片。演示数据文件已提交在 `server/fixtures/v3_demo_data.json`，以下命令会写入当前 `.env` 指向的 MongoDB：
 
 ```bash
 cd server
@@ -133,6 +145,8 @@ npm run dev:mp-weixin
 然后在微信开发者工具中导入 `frontend/dist/dev/mp-weixin`。
 
 前端通过 `frontend/.env.development` 中的 `VITE_API_BASE_URL` 访问后端。真机调试时不能使用 `127.0.0.1`，需要改为运行 Flask 的电脑局域网地址。
+
+本地 H5 常见地址是 `http://localhost:5173/#/` 或 `http://localhost:5174/#/`。后端默认已经放行这两个端口的跨域请求。
 
 ## 测试与构建
 
