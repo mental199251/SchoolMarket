@@ -1,0 +1,315 @@
+{
+  "users": [
+    {
+      "username": "user_a",
+      "password": "Password123",
+      "role": "user",
+      "status": "active",
+      "profile": {
+        "nickname": "普通用户 A",
+        "contact": "user_a@school.example",
+        "campus": "东校区"
+      }
+    },
+    {
+      "username": "user_b",
+      "password": "Password123",
+      "role": "user",
+      "status": "active",
+      "profile": {
+        "nickname": "普通用户 B",
+        "contact": "user_b@school.example",
+        "campus": "西校区"
+      }
+    },
+    {
+      "username": "seller_books",
+      "password": "Password123",
+      "role": "user",
+      "status": "active",
+      "profile": {
+        "nickname": "书香小铺",
+        "contact": "books@school.example",
+        "campus": "图书馆北门"
+      }
+    },
+    {
+      "username": "seller_digital",
+      "password": "Password123",
+      "role": "user",
+      "status": "active",
+      "profile": {
+        "nickname": "数码社团",
+        "contact": "digital@school.example",
+        "campus": "信息楼"
+      }
+    },
+    {
+      "username": "seller_life",
+      "password": "Password123",
+      "role": "user",
+      "status": "active",
+      "profile": {
+        "nickname": "宿舍好物站",
+        "contact": "life@school.example",
+        "campus": "南区宿舍"
+      }
+    },
+    {
+      "username": "seller_sports",
+      "password": "Password123",
+      "role": "user",
+      "status": "active",
+      "profile": {
+        "nickname": "运动补给摊",
+        "contact": "sports@school.example",
+        "campus": "体育馆"
+      }
+    },
+    {
+      "username": "buyer_lina",
+      "password": "Password123",
+      "role": "user",
+      "status": "active",
+      "profile": {
+        "nickname": "林娜",
+        "contact": "lina@school.example",
+        "campus": "东校区"
+      }
+    },
+    {
+      "username": "buyer_tao",
+      "password": "Password123",
+      "role": "user",
+      "status": "active",
+      "profile": {
+        "nickname": "阿涛",
+        "contact": "tao@school.example",
+        "campus": "西校区"
+      }
+    },
+    {
+      "username": "admin",
+      "password": "Admin12345",
+      "role": "admin",
+      "status": "active",
+      "profile": {
+        "nickname": "管理员",
+        "contact": "admin@school.example",
+        "campus": "平台后台"
+      }
+    },
+    {
+      "username": "blocked_user",
+      "password": "Password123",
+      "role": "user",
+      "status": "disabled",
+      "profile": {
+        "nickname": "违规测试号",
+        "contact": "blocked@school.example",
+        "campus": "北区宿舍"
+      }
+    }
+  ],
+  "products": [
+    {
+      "owner": "seller_books",
+      "title": "计算机网络第 8 版教材",
+      "description": "九成新，重点章节有少量荧光笔标注，适合计算机网络课程复习。",
+      "price_cents": 3200,
+      "category_key": "books",
+      "category_name": "教材资料",
+      "condition": "good",
+      "palette": ["#BDEEE3", "#EAF8FF", "#2A7C6B"]
+    },
+    {
+      "owner": "seller_books",
+      "title": "考研英语真题套装",
+      "description": "近十年真题，答案册完整，部分年份已做铅笔痕迹，可擦除。",
+      "price_cents": 2600,
+      "category_key": "books",
+      "category_name": "教材资料",
+      "condition": "like_new",
+      "palette": ["#FFE1B8", "#FFF7EA", "#9A5B17"]
+    },
+    {
+      "owner": "seller_books",
+      "title": "线性代数辅导讲义",
+      "description": "课堂配套讲义，含常考题型整理，封面轻微磨损。",
+      "price_cents": 1800,
+      "category_key": "books",
+      "category_name": "教材资料",
+      "condition": "fair",
+      "status": "off_shelf",
+      "palette": ["#D9E8FF", "#F7FBFF", "#3264A8"]
+    },
+    {
+      "owner": "seller_digital",
+      "title": "iPad Air 5 64G",
+      "description": "蓝色 64G，屏幕无划痕，附保护壳和充电线，适合记笔记。",
+      "price_cents": 265000,
+      "category_key": "electronics",
+      "category_name": "电子产品",
+      "condition": "like_new",
+      "palette": ["#C9E7FF", "#F2FAFF", "#1F6FA8"]
+    },
+    {
+      "owner": "seller_digital",
+      "title": "Sony WH-1000XM4 耳机",
+      "description": "降噪正常，耳罩干净，续航稳定，适合图书馆自习。",
+      "price_cents": 92000,
+      "category_key": "electronics",
+      "category_name": "电子产品",
+      "condition": "good",
+      "palette": ["#D8D6FF", "#F7F5FF", "#5A4AA8"]
+    },
+    {
+      "owner": "seller_digital",
+      "title": "罗技 K380 蓝牙键盘",
+      "description": "多设备切换正常，按键回弹好，附两节新电池。",
+      "price_cents": 9500,
+      "category_key": "electronics",
+      "category_name": "电子产品",
+      "condition": "good",
+      "palette": ["#D8F6E8", "#F7FFFB", "#1A7A5C"]
+    },
+    {
+      "owner": "seller_life",
+      "title": "宿舍床上小桌板",
+      "description": "折叠稳定，桌面干净，适合床上学习或放电脑。",
+      "price_cents": 2500,
+      "category_key": "daily",
+      "category_name": "生活用品",
+      "condition": "good",
+      "palette": ["#FFE2C7", "#FFF8F0", "#A8652B"]
+    },
+    {
+      "owner": "seller_life",
+      "title": "小熊电煮锅 1.2L",
+      "description": "宿舍早餐煮面小锅，功能正常，内胆已清洁，建议自提验货。",
+      "price_cents": 5800,
+      "category_key": "daily",
+      "category_name": "生活用品",
+      "condition": "good",
+      "palette": ["#FFD9DF", "#FFF7F9", "#A83A52"]
+    },
+    {
+      "owner": "seller_life",
+      "title": "桌面收纳抽屉三层",
+      "description": "透明三层抽屉，能放文具、数据线和护肤小样。",
+      "price_cents": 2200,
+      "category_key": "daily",
+      "category_name": "生活用品",
+      "condition": "like_new",
+      "palette": ["#D9F4FF", "#F2FBFF", "#287A96"]
+    },
+    {
+      "owner": "seller_sports",
+      "title": "Yonex 入门羽毛球拍",
+      "description": "轻量球拍一支，线还比较紧，适合体育课和入门练习。",
+      "price_cents": 6800,
+      "category_key": "sports",
+      "category_name": "运动器材",
+      "condition": "good",
+      "palette": ["#D7F7C8", "#F7FFF2", "#3E7E2B"]
+    },
+    {
+      "owner": "seller_sports",
+      "title": "加厚防滑瑜伽垫",
+      "description": "墨绿色加厚款，使用次数少，送绑带，适合宿舍拉伸。",
+      "price_cents": 3000,
+      "category_key": "sports",
+      "category_name": "运动器材",
+      "condition": "like_new",
+      "palette": ["#CDEFE0", "#F3FFF8", "#246B55"]
+    },
+    {
+      "owner": "seller_sports",
+      "title": "山地车骑行头盔",
+      "description": "M 码，调节扣正常，适合校园骑行和周末短途。",
+      "price_cents": 4500,
+      "category_key": "sports",
+      "category_name": "运动器材",
+      "condition": "good",
+      "palette": ["#FFE8AE", "#FFF9E8", "#926B14"]
+    }
+  ],
+  "trades": [
+    {
+      "buyer": "buyer_lina",
+      "product_title": "Sony WH-1000XM4 耳机",
+      "status": "pending",
+      "message": "想今天傍晚在图书馆门口看一下耳机。"
+    },
+    {
+      "buyer": "buyer_tao",
+      "product_title": "罗技 K380 蓝牙键盘",
+      "status": "confirmed",
+      "message": "键盘还在吗？我可以今晚自提。"
+    },
+    {
+      "buyer": "user_b",
+      "product_title": "iPad Air 5 64G",
+      "status": "completed",
+      "message": "iPad 可以带保护壳一起吗？"
+    },
+    {
+      "buyer": "user_a",
+      "product_title": "加厚防滑瑜伽垫",
+      "status": "cancelled",
+      "message": "临时不需要了，抱歉。"
+    }
+  ],
+  "announcements": [
+    {
+      "title": "V3 演示数据已上线",
+      "content": "本次演示库包含真实账号、每类商品、图片、交易、消息和 AI 日志，可直接用于答辩走查。",
+      "status": "published"
+    },
+    {
+      "title": "线下交易提醒",
+      "content": "建议在校园公共区域当面验货，贵重数码商品请确认序列号、配件和电池状态。",
+      "status": "published"
+    },
+    {
+      "title": "图片展示优化说明",
+      "content": "V3 商品已补充本地 PNG 图片，H5 与微信小程序均可通过后端静态地址加载。",
+      "status": "published"
+    }
+  ],
+  "ai_logs": [
+    {
+      "user": "seller_books",
+      "generation_type": "title",
+      "model": "gpt-oss:120b-cloud",
+      "prompt_summary": "计算机网络教材 / 教材资料 / 轻微使用",
+      "response_summary": "计算机网络教材九成新 | 计网第8版带标注 | 校园自提计网教材",
+      "status": "success",
+      "duration_ms": 860,
+      "error_code": null,
+      "error_message": ""
+    },
+    {
+      "user": "seller_digital",
+      "generation_type": "description",
+      "model": "gpt-oss:120b-cloud",
+      "prompt_summary": "iPad Air 5 / 电子产品 / 几乎全新",
+      "response_summary": "蓝色 iPad Air 5，屏幕无划痕，适合课堂笔记，支持校园内当面验货。",
+      "status": "success",
+      "duration_ms": 860,
+      "error_code": null,
+      "error_message": ""
+    },
+    {
+      "user": "seller_life",
+      "generation_type": "title",
+      "model": "gpt-oss:120b-cloud",
+      "prompt_summary": "电煮锅 / 生活用品",
+      "response_summary": "",
+      "status": "failed",
+      "duration_ms": 0,
+      "error_code": "AI_UNAVAILABLE",
+      "error_message": "V3 演示：Ollama 暂不可用"
+    }
+  ]
+}

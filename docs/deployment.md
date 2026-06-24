@@ -58,7 +58,7 @@ source .venv/bin/activate
 python scripts/seed_data.py
 ```
 
-V3 答辩或完整演示建议使用真实演示数据脚本，它会写入用户、商家、12 个带图片商品、交易、消息、公告、操作日志和 AI 调用日志：
+V3 答辩或完整演示建议使用真实演示数据脚本，它会读取仓库内的 `server/fixtures/v3_demo_data.json`，再写入用户、商家、12 个带图片商品、交易、消息、公告、操作日志和 AI 调用日志：
 
 ```bash
 python scripts/seed_v3_demo.py

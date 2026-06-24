@@ -1,11 +1,23 @@
 from pathlib import Path
+import json
 
 from app.repositories.users import find_user_by_username
-from scripts.seed_v3_demo import SEED_TAG, seed_v3_demo
+from scripts.seed_v3_demo import FIXTURE_PATH, SEED_TAG, seed_v3_demo
 
 
 def _db(app):
     return app.extensions["mongo"].db
+
+
+def test_v3_fixture_is_versioned_demo_data():
+    assert FIXTURE_PATH.exists()
+
+    data = json.loads(FIXTURE_PATH.read_text(encoding="utf-8"))
+    assert len(data["users"]) == 10
+    assert len(data["products"]) == 12
+    assert len(data["trades"]) == 4
+    assert len(data["announcements"]) == 3
+    assert len(data["ai_logs"]) == 3
 
 
 def test_v3_seed_writes_realistic_demo_data(app, tmp_path):

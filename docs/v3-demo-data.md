@@ -2,6 +2,8 @@
 
 V3 增加一套可重复执行的真实演示数据脚本，用于把用户、商家、商品、图片、交易、消息、公告、操作日志和 AI 调用日志写入 MongoDB。商品图片由脚本生成 PNG 文件，路径写入商品 `images` 字段，H5 和微信小程序通过后端 `/uploads/images/...` 地址加载。
 
+演示数据本体已作为 JSON fixture 提交到仓库：`server/fixtures/v3_demo_data.json`。`server/scripts/seed_v3_demo.py` 会优先读取这份 fixture，再写入当前配置的 MongoDB。
+
 ## 初始化命令
 
 先确认 MongoDB 已启动，并且 `.env` 中的 `MONGO_URI`、`MONGO_DB_NAME` 指向要写入的数据库。

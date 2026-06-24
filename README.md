@@ -68,7 +68,7 @@ source .venv/bin/activate
 python scripts/seed_data.py
 ```
 
-初始化 V3 真实演示数据和商品图片：
+初始化 V3 真实演示数据和商品图片。演示数据文件已提交在 `server/fixtures/v3_demo_data.json`：
 
 ```bash
 cd server

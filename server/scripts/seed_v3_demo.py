@@ -1,5 +1,6 @@
 from pathlib import Path
 import hashlib
+import json
 import re
 import sys
 
@@ -24,6 +25,7 @@ from app.services.auth import hash_password
 
 SEED_TAG = "v3_demo"
 DEFAULT_PASSWORD = "Password123"
+FIXTURE_PATH = ROOT_DIR / "fixtures" / "v3_demo_data.json"
 
 
 V3_USERS = [
@@ -284,6 +286,87 @@ V3_ANNOUNCEMENTS = [
 ]
 
 
+V3_TRADES = [
+    {
+        "buyer": "buyer_lina",
+        "product_title": "Sony WH-1000XM4 耳机",
+        "status": "pending",
+        "message": "想今天傍晚在图书馆门口看一下耳机。",
+    },
+    {
+        "buyer": "buyer_tao",
+        "product_title": "罗技 K380 蓝牙键盘",
+        "status": "confirmed",
+        "message": "键盘还在吗？我可以今晚自提。",
+    },
+    {
+        "buyer": "user_b",
+        "product_title": "iPad Air 5 64G",
+        "status": "completed",
+        "message": "iPad 可以带保护壳一起吗？",
+    },
+    {
+        "buyer": "user_a",
+        "product_title": "加厚防滑瑜伽垫",
+        "status": "cancelled",
+        "message": "临时不需要了，抱歉。",
+    },
+]
+
+
+V3_AI_LOGS = [
+    {
+        "user": "seller_books",
+        "generation_type": "title",
+        "model": "gpt-oss:120b-cloud",
+        "prompt_summary": "计算机网络教材 / 教材资料 / 轻微使用",
+        "response_summary": "计算机网络教材九成新 | 计网第8版带标注 | 校园自提计网教材",
+        "status": "success",
+        "duration_ms": 860,
+        "error_code": None,
+        "error_message": "",
+    },
+    {
+        "user": "seller_digital",
+        "generation_type": "description",
+        "model": "gpt-oss:120b-cloud",
+        "prompt_summary": "iPad Air 5 / 电子产品 / 几乎全新",
+        "response_summary": "蓝色 iPad Air 5，屏幕无划痕，适合课堂笔记，支持校园内当面验货。",
+        "status": "success",
+        "duration_ms": 860,
+        "error_code": None,
+        "error_message": "",
+    },
+    {
+        "user": "seller_life",
+        "generation_type": "title",
+        "model": "gpt-oss:120b-cloud",
+        "prompt_summary": "电煮锅 / 生活用品",
+        "response_summary": "",
+        "status": "failed",
+        "duration_ms": 0,
+        "error_code": "AI_UNAVAILABLE",
+        "error_message": "V3 演示：Ollama 暂不可用",
+    },
+]
+
+
+def _load_fixture():
+    if not FIXTURE_PATH.exists():
+        return None
+    with FIXTURE_PATH.open("r", encoding="utf-8") as file:
+        return json.load(file)
+
+
+fixture = _load_fixture()
+if fixture:
+    V3_USERS = fixture.get("users", V3_USERS)
+    V3_PRODUCTS = fixture.get("products", V3_PRODUCTS)
+    V3_ANNOUNCEMENTS = fixture.get("announcements", V3_ANNOUNCEMENTS)
+    V3_TRADES = fixture.get("trades", V3_TRADES)
+    V3_AI_LOGS = fixture.get("ai_logs", V3_AI_LOGS)
+
+
 def _font(size, bold=False):
     candidates = [
         "/System/Library/Fonts/PingFang.ttc",
@@ -534,14 +617,12 @@ def _set_trade_status(trade, status, completed_by=None):
 
 
 def _seed_trades_and_messages(products, users):
-    trade_specs = [
-        ("buyer_lina", "Sony WH-1000XM4 耳机", "pending", "想今天傍晚在图书馆门口看一下耳机。"),
-        ("buyer_tao", "罗技 K380 蓝牙键盘", "confirmed", "键盘还在吗？我可以今晚自提。"),
-        ("user_b", "iPad Air 5 64G", "completed", "iPad 可以带保护壳一起吗？"),
-        ("user_a", "加厚防滑瑜伽垫", "cancelled", "临时不需要了，抱歉。"),
-    ]
     trades = []
-    for buyer_username, product_title, status, message in trade_specs:
+    for spec in V3_TRADES:
+        buyer_username = spec["buyer"]
+        product_title = spec["product_title"]
+        status = spec["status"]
+        message = spec.get("message", "")
         buyer = users[buyer_username]
         product = products[product_title]
         trade = trade_repository.create_trade(str(buyer["_id"]), product, message=f"[V3] {message}")
@@ -600,46 +681,21 @@ def _seed_announcements_and_logs(users, products):
 
 
 def _seed_ai_logs(users):
-    specs = [
-        (
-            "seller_books",
-            "title",
-            "计算机网络教材 / 教材资料 / 轻微使用",
-            "计算机网络教材九成新 | 计网第8版带标注 | 校园自提计网教材",
-            "success",
-            None,
-        ),
-        (
-            "seller_digital",
-            "description",
-            "iPad Air 5 / 电子产品 / 几乎全新",
-            "蓝色 iPad Air 5，屏幕无划痕，适合课堂笔记，支持校园内当面验货。",
-            "success",
-            None,
-        ),
-        (
-            "seller_life",
-            "title",
-            "电煮锅 / 生活用品",
-            "",
-            "failed",
-            "AI_UNAVAILABLE",
-        ),
-    ]
-    for username, generation_type, prompt, response, status, error_code in specs:
+    for spec in V3_AI_LOGS:
+        username = spec["user"]
         log = ai_log_repository.create_log(
             str(users[username]["_id"]),
-            generation_type,
-            "gpt-oss:120b-cloud",
-            status,
-            prompt_summary=prompt,
-            response_summary=response,
-            duration_ms=860 if status == "success" else 0,
-            error_code=error_code,
-            error_message="V3 演示：Ollama 暂不可用" if error_code else "",
+            spec["generation_type"],
+            spec.get("model", "gpt-oss:120b-cloud"),
+            spec["status"],
+            prompt_summary=spec.get("prompt_summary", ""),
+            response_summary=spec.get("response_summary", ""),
+            duration_ms=spec.get("duration_ms", 0),
+            error_code=spec.get("error_code"),
+            error_message=spec.get("error_message", ""),
         )
         _tag("ai_generation_logs", log["_id"])
-        print(f"seeded ai log {username} / {generation_type} / {status}")
+        print(f"seeded ai log {username} / {spec['generation_type']} / {spec['status']}")
 
 
 def seed_v3_demo():
